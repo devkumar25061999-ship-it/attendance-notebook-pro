@@ -17,8 +17,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 import com.getcapacitor.BridgeActivity;
-import com.startapp.sdk.adsbase.StartAppSDK;
-import com.startapp.sdk.adsbase.StartAppAd;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -30,14 +28,6 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        try {
-            // Initialize Start.io (StartApp) SDK with App ID 208934222
-            StartAppSDK.init(this, "208934222", true);
-            StartAppSDK.setUserConsent(this, "pas", System.currentTimeMillis(), true);
-        } catch (Exception startEx) {
-            startEx.printStackTrace();
-        }
 
         try {
             if (this.bridge != null && this.bridge.getWebView() != null) {
