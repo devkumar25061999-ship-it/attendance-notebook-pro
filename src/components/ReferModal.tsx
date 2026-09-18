@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Share2, X, Check, Copy, MessageSquare, Send, CalendarCheck2, Clock, Camera, FileSpreadsheet, BookOpen } from 'lucide-react';
+import { Share2, X, Check, Copy, MessageSquare, CalendarCheck2, Clock, Camera, FileSpreadsheet, BookOpen } from 'lucide-react';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 interface ReferModalProps {
   isOpen: boolean;
@@ -18,10 +20,36 @@ export const ReferModal: React.FC<ReferModalProps> = ({
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://attendanceplus.app';
 
-  const shareText = `*Attendance Notebook Pro*\n\nHello! Check out this easy and reliable app to track daily attendance, shifts, overtime, and daily wage calculations.\n\n📌 *Key Features:*\n• 1-Tap Attendance (Work, Half Day, Overtime, Leave)\n• Automated Salary & Overtime Calculator\n• Face Punch Camera Attendance\n• Integrated Notebook & Work Diary (Khata / Cash Advance)\n• HR Excel/CSV Report Export\n\n📲 App Link: ${currentUrl}`;
+  const shareText = `*Attendance Notebook Pro*\n\nTrack daily attendance, overtime, duty shifts, and salary calculations.\n\n📌 *Features:*\n• 1-Tap Attendance (Work, Half Day, Overtime, Leave)\n• Auto Salary & Overtime Calculation\n• Face Punch Attendance Camera\n• Notebook & Work Diary (Khata / Cash Advance)\n• HR Excel/CSV Report\n\n📲 App Link: ${currentUrl}`;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shareText);
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) {
+      // Fallback
+    }
+
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return success;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const handleCopy = async () => {
+    await copyToClipboard(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -32,158 +60,158 @@ export const ReferModal: React.FC<ReferModalProps> = ({
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    // 1. Android Native Bridge
+    if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.shareText) {
+      try {
+        (window as any).AndroidNativePrint.shareText(shareText, 'Refer Attendance Notebook Pro');
+        return;
+      } catch (err) {
+        console.warn('AndroidNativePrint.shareText failed:', err);
+      }
+    }
+
+    // 2. Capacitor Share Plugin
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Share.share({
+          title: 'Attendance Notebook Pro',
+          text: shareText,
+          url: currentUrl,
+          dialogTitle: 'Share App via',
+        });
+        return;
+      } catch (err) {
+        console.warn('Capacitor Share failed:', err);
+      }
+    }
+
+    // 3. Web Share API
+    if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         await navigator.share({
           title: 'Attendance Notebook Pro',
           text: shareText,
           url: currentUrl,
         });
+        return;
       } catch (err) {
-        handleCopy();
+        // User cancelled or share failed, fallback to copy
       }
-    } else {
-      handleCopy();
     }
+
+    // 4. Fallback: Copy to clipboard
+    handleCopy();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="bg-[#1a2233] text-white rounded-3xl w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl border-2 border-emerald-500/40 overflow-hidden">
-        {/* Top Banner with Green Header matching screenshot */}
-        <div className="bg-[#0f5132] px-5 py-4 flex items-center justify-between border-b border-emerald-600/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white text-emerald-800 flex items-center justify-center font-black shadow-md">
-              <Share2 className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in duration-150">
+      <div className="bg-[#141b29] text-white rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] flex flex-col shadow-2xl border border-emerald-500/30 overflow-hidden">
+        {/* Top Header - Compact */}
+        <div className="bg-[#0f5132] px-3.5 py-2.5 flex items-center justify-between border-b border-emerald-600/50 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-white text-emerald-800 flex items-center justify-center font-black shadow-xs shrink-0">
+              <Share2 className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-black tracking-wide text-white">
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-sm font-black tracking-wide text-white leading-tight">
                   Refer to Friend
                 </h2>
-                <span className="bg-emerald-700/80 text-emerald-100 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  Share App
+                <span className="bg-emerald-700 text-emerald-100 text-[9px] font-bold px-1.5 py-0.2 rounded-full">
+                  Share
                 </span>
               </div>
-              <p className="text-xs text-emerald-100/90 font-medium">
-                Share with colleagues • Simple attendance & salary tracker
+              <p className="text-[10px] text-emerald-100/90 font-medium leading-tight">
+                Daily attendance & salary calculator app
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-emerald-800/80 hover:bg-emerald-700 flex items-center justify-center text-white transition-colors"
+            className="w-7 h-7 rounded-full bg-emerald-800/80 hover:bg-emerald-700 flex items-center justify-center text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-[#141b29]">
-          <div className="text-xs font-bold text-slate-300 uppercase tracking-wider px-1">
-            App Highlights & Features:
+        {/* Modal Body - Compact */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[#141b29]">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-0.5">
+            Key Features:
           </div>
 
-          {/* Feature Highlights */}
-          <div className="space-y-2">
-            <div className="bg-[#1f293d] border border-slate-700/70 rounded-2xl p-3 flex items-start gap-3">
-              <CalendarCheck2 className="w-5 h-5 text-cyan-400 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="text-sm font-extrabold text-white">
-                  1-Tap Attendance
-                </h4>
-                <p className="text-xs text-slate-300">
-                  Work, Half Duty, Holiday & Sick Leave
-                </p>
+          {/* Feature Highlights - Compact tight cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
+              <CalendarCheck2 className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-white truncate">1-Tap Attendance</h4>
+                <p className="text-[10px] text-slate-300 truncate">Work, Half Duty, Leave</p>
               </div>
             </div>
 
-            <div className="bg-[#1f293d] border border-slate-700/70 rounded-2xl p-3 flex items-start gap-3">
-              <Clock className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="text-sm font-extrabold text-white">
-                  Salary & OT Calculator
-                </h4>
-                <p className="text-xs text-slate-300">
-                  Daily wage + automated overtime calculation
-                </p>
+            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-white truncate">Salary & OT</h4>
+                <p className="text-[10px] text-slate-300 truncate">Daily wage + Overtime</p>
               </div>
             </div>
 
-            <div className="bg-[#1f293d] border border-slate-700/70 rounded-2xl p-3 flex items-start gap-3">
-              <Camera className="w-5 h-5 text-purple-400 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="text-sm font-extrabold text-white">
-                  Face Punch Duty
-                </h4>
-                <p className="text-xs text-slate-300">
-                  Camera selfie with verified timestamp log
-                </p>
+            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-purple-400 shrink-0" />
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-white truncate">Face Punch</h4>
+                <p className="text-[10px] text-slate-300 truncate">Selfie photo log</p>
               </div>
             </div>
 
-            <div className="bg-[#1f293d] border border-slate-700/70 rounded-2xl p-3 flex items-start gap-3">
-              <BookOpen className="w-5 h-5 text-teal-400 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="text-sm font-extrabold text-white">
-                  Notebook & Work Diary
-                </h4>
-                <p className="text-xs text-slate-300">
-                  Daily work notes, site log & cash advance ledger
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-[#1f293d] border border-slate-700/70 rounded-2xl p-3 flex items-start gap-3">
-              <FileSpreadsheet className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
-              <div>
-                <h4 className="text-sm font-extrabold text-white">
-                  HR Excel Report
-                </h4>
-                <p className="text-xs text-slate-300">
-                  Export CSV/Excel for contractor or HR manager
-                </p>
+            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-teal-400 shrink-0" />
+              <div className="min-w-0">
+                <h4 className="text-xs font-bold text-white truncate">Work Diary / Khata</h4>
+                <p className="text-[10px] text-slate-300 truncate">Notes & advance ledger</p>
               </div>
             </div>
           </div>
 
-          {/* Message Preview */}
-          <div className="space-y-1.5 pt-1">
-            <div className="flex items-center justify-between text-xs px-1">
+          {/* Message Preview Box - Compact */}
+          <div className="space-y-1 pt-1">
+            <div className="flex items-center justify-between text-[11px] px-0.5">
               <span className="font-bold text-slate-300">
-                Referral Message Preview:
+                Message Preview:
               </span>
               <button
                 onClick={handleCopy}
-                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold text-xs"
+                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold text-[11px]"
               >
                 {copied ? (
                   <>
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3 h-3" />
                     <span>Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy Text</span>
+                    <Copy className="w-3 h-3" />
+                    <span>Copy</span>
                   </>
                 )}
               </button>
             </div>
 
-            <div className="bg-[#0f141f] border border-slate-800 rounded-xl p-3 text-xs text-slate-300 font-mono line-clamp-3 leading-relaxed">
+            <div className="bg-[#0c1018] border border-slate-800 rounded-xl p-2 text-[11px] text-slate-300 font-mono line-clamp-2 leading-tight">
               {shareText}
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="p-4 bg-[#111622] border-t border-slate-800 space-y-2">
+        {/* Action Buttons - Compact */}
+        <div className="p-3 bg-[#0f141f] border-t border-slate-800 space-y-1.5 shrink-0">
           {/* WhatsApp button */}
           <button
             onClick={handleWhatsApp}
-            className="w-full py-3 px-4 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]"
           >
             <MessageSquare className="w-4 h-4 fill-slate-950" />
             <span>Share via WhatsApp</span>
@@ -192,18 +220,18 @@ export const ReferModal: React.FC<ReferModalProps> = ({
           {/* All apps button */}
           <button
             onClick={handleNativeShare}
-            className="w-full py-3 px-4 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]"
           >
             <Share2 className="w-4 h-4" />
-            <span>Share via All Apps</span>
+            <span>Share via All Apps (Telegram / SMS / More)</span>
           </button>
 
           {/* Copy button */}
           <button
             onClick={handleCopy}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#283247] hover:bg-[#323e59] text-slate-200 font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+            className="w-full py-2 px-3 rounded-xl bg-[#283247] hover:bg-[#323e59] text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
           >
-            <Copy className="w-4 h-4" />
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Link & Message Copied!' : 'Copy Link & Message'}</span>
           </button>
         </div>

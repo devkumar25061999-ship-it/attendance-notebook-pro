@@ -2,6 +2,7 @@ package com.attendancenotebook.pro;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -123,6 +124,27 @@ public class MainActivity extends BridgeActivity {
                             }
                         });
                         printWebView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html", "UTF-8", null);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void shareText(final String text, final String title) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+                        sendIntent.setType("text/plain");
+                        String chooserTitle = (title != null && !title.trim().isEmpty()) ? title : "Share App";
+                        Intent shareIntent = Intent.createChooser(sendIntent, chooserTitle);
+                        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        MainActivity.this.startActivity(shareIntent);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

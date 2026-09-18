@@ -716,51 +716,25 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               </div>
             </div>
           ) : (
-            /* Paper Slip View */
-            <div className="space-y-4 animate-in fade-in duration-200">
-              {/* Paper Slip Action Bar */}
-              <div className="bg-slate-900 text-white p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-sm border border-slate-800">
-                <div className="flex items-center gap-1.5">
-                  <Printer className="w-4 h-4 text-amber-400" />
-                  <span className="text-xs font-black tracking-wide">Print & Save Slip:</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleOpenInNewTab}
-                    className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-black text-xs rounded-xl flex items-center gap-1 shadow-xs transition-all"
-                    title="Open in new tab to print directly without preview restrictions"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Open in New Tab</span>
-                  </button>
-                  <button
-                    onClick={handleDownloadSlipHtml}
-                    className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs rounded-xl flex items-center gap-1 shadow-xs transition-all"
-                    title="Download A4 Salary Slip HTML/PDF file"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Save / PDF</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-white border-2 border-slate-900 rounded-xl p-4 sm:p-5 shadow-inner text-slate-900 text-xs font-sans">
+            /* Paper Slip View - Clean & Compact */
+            <div className="space-y-3 animate-in fade-in duration-150">
+              <div className="bg-white border-2 border-slate-900 rounded-2xl p-3.5 sm:p-4 shadow-sm text-slate-900 text-xs font-sans">
                 {/* Paper Header */}
-                <div className="border-b-2 border-slate-900 pb-3 mb-3 flex justify-between items-start">
+                <div className="border-b-2 border-slate-900 pb-2.5 mb-2.5 flex justify-between items-start">
                   <div>
-                    <h3 className="text-base sm:text-lg font-black text-slate-900 uppercase">
+                    <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase leading-tight">
                       {settings.companyName || 'ATTENDANCE NOTEBOOK PRO'}
                     </h3>
-                    <p className="text-[11px] text-slate-600">Department: {settings.department || 'Operations'}</p>
+                    <p className="text-[10px] text-slate-600">Department: {settings.department || 'Operations'}</p>
                   </div>
-                  <div className="bg-slate-950 text-white px-2.5 py-1 rounded text-right">
-                    <div className="text-[9px] font-bold">SALARY SLIP</div>
-                    <div className="text-xs font-black text-amber-300">{monthName.toUpperCase()} {year}</div>
+                  <div className="bg-slate-950 text-white px-2 py-0.5 rounded text-right">
+                    <div className="text-[8px] font-bold tracking-wide">SALARY SLIP</div>
+                    <div className="text-[11px] font-black text-amber-300">{monthName.toUpperCase()} {year}</div>
                   </div>
                 </div>
 
                 {/* Employee Info Box */}
-                <div className="grid grid-cols-2 gap-2 bg-slate-50 border border-slate-300 p-2.5 rounded-lg mb-3 text-[11px]">
+                <div className="grid grid-cols-2 gap-2 bg-slate-50 border border-slate-300 p-2 rounded-xl mb-2.5 text-[10px]">
                   <div>
                     <div><strong>Name:</strong> {settings.employeeName}</div>
                     <div><strong>ID:</strong> {settings.employeeId}</div>
@@ -772,14 +746,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 </div>
 
                 {/* Table Summary */}
-                <div className="border border-slate-300 rounded mb-3 overflow-hidden text-[11px]">
-                  <div className="grid grid-cols-4 bg-slate-100 font-bold p-1.5 border-b border-slate-300 text-center">
+                <div className="border border-slate-300 rounded-xl mb-2.5 overflow-hidden text-[10px]">
+                  <div className="grid grid-cols-4 bg-slate-100 font-bold p-1 border-b border-slate-300 text-center">
                     <div>Work Days</div>
                     <div>Half Days</div>
                     <div>OT Hours</div>
                     <div>Leaves</div>
                   </div>
-                  <div className="grid grid-cols-4 p-1.5 text-center font-black">
+                  <div className="grid grid-cols-4 p-1 text-center font-black">
                     <div>{workDays}</div>
                     <div>{halfDays}</div>
                     <div>{totalOtHours}h</div>
@@ -788,40 +762,32 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 </div>
 
                 {/* Net Payable Box */}
-                <div className="bg-emerald-50 border-2 border-emerald-600 p-2.5 rounded-lg mb-4 flex justify-between items-center">
+                <div className="bg-emerald-50 border-2 border-emerald-600 p-2 rounded-xl mb-3 flex justify-between items-center">
                   <div>
                     <div className="text-xs font-black text-emerald-950">TOTAL NET PAYABLE:</div>
-                    <div className="text-[10px] text-emerald-700">Wage + Overtime Total</div>
+                    <div className="text-[9px] text-emerald-700">Wage + Overtime Total</div>
                   </div>
-                  <div className="text-xl font-black text-emerald-950 font-mono">
+                  <div className="text-lg font-black text-emerald-950 font-mono">
                     ₹{totalNetSalary.toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 {/* Signatures */}
-                <div className="grid grid-cols-3 gap-2 text-center text-[10px] mt-6 pt-3 border-t border-dashed border-slate-400">
-                  <div className="border-t border-slate-700 pt-1 font-bold">Supervisor</div>
-                  <div className="border-t border-slate-700 pt-1 font-bold">Employee</div>
-                  <div className="border-t border-slate-700 pt-1 font-bold">Authorized Sign</div>
+                <div className="grid grid-cols-3 gap-2 text-center text-[9px] mt-4 pt-2 border-t border-dashed border-slate-400">
+                  <div className="border-t border-slate-700 pt-0.5 font-bold">Supervisor</div>
+                  <div className="border-t border-slate-700 pt-0.5 font-bold">Employee</div>
+                  <div className="border-t border-slate-700 pt-0.5 font-bold">Authorized Sign</div>
                 </div>
-              </div>
-
-              {/* Instructions banner */}
-              <div className="bg-blue-50 border border-blue-200 p-3 rounded-xl text-blue-950 text-xs flex items-center gap-2">
-                <span className="text-blue-600 font-black text-base">ℹ️</span>
-                <span>
-                  Tap <strong>"Print Slip"</strong> to open the printer dialog, or <strong>"Save / PDF"</strong> to download a permanent printable copy.
-                </span>
               </div>
             </div>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-2 shrink-0">
+        <div className="p-2.5 sm:p-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center gap-2 shrink-0">
           <button
             onClick={handleExportCSV}
-            className="w-full sm:w-auto flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white font-black text-xs sm:text-sm rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
+            className="w-full sm:w-auto flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white font-black text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
             title="Download Full Attendance in Excel / CSV format"
           >
             <FileSpreadsheet className="w-4 h-4 shrink-0" />
@@ -830,7 +796,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
           <button
             onClick={handleDownloadSlipHtml}
-            className="w-full sm:w-auto py-2.5 px-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white font-black text-xs sm:text-sm rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
+            className="w-full sm:w-auto py-2 px-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-98 text-white font-black text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all"
             title="Download printable HTML/PDF file"
           >
             <Download className="w-4 h-4 shrink-0" />
@@ -839,7 +805,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
           <button
             onClick={handlePrint}
-            className="w-full sm:w-auto py-2.5 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-98 text-slate-950 font-black text-xs sm:text-sm rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all border border-amber-400"
+            className="w-full sm:w-auto py-2 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-98 text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-all border border-amber-400"
             title="Print Salary Slip directly"
           >
             <Printer className="w-4 h-4 stroke-[2.5] shrink-0" />
