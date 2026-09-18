@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="108" fill="#0b0f19"/>
+  <rect x="40" y="40" width="432" height="432" rx="80" fill="url(#grad)" stroke="#38bdf8" stroke-width="6"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <!-- Calendar top bar -->
+  <rect x="88" y="120" width="336" height="76" rx="20" fill="#2563eb"/>
+  <rect x="88" y="160" width="336" height="232" rx="20" fill="#ffffff"/>
+  <!-- Pins -->
+  <rect x="144" y="96" width="28" height="48" rx="10" fill="#fbbf24"/>
+  <rect x="340" y="96" width="28" height="48" rx="10" fill="#fbbf24"/>
+  <!-- Checkmark -->
+  <circle cx="256" cy="276" r="64" fill="#10b981"/>
+  <path d="M224 276 L248 300 L288 252" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Plus badge -->
+  <circle cx="396" cy="380" r="44" fill="#f59e0b"/>
+  <path d="M396 360 L396 400 M376 380 L416 380" stroke="#000000" stroke-width="10" stroke-linecap="round"/>
+</svg>

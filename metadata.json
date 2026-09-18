@@ -1,0 +1,6 @@
+{
+  "name": "Attendance Notebook Pro",
+  "description": "Daily attendance, salary and overtime tracker with integrated notebook and work diary.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,9 @@
+{
+	"appId": "com.attendancenotebook.pro",
+	"appName": "Attendance Notebook Pro",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"server": {
+		"androidScheme": "https"
+	}
+}
