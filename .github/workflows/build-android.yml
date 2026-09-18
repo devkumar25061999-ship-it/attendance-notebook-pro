@@ -27,6 +27,9 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
@@ -39,13 +42,17 @@ jobs:
 
       - name: Make Gradle Wrapper Executable
         run: |
-          cd android
-          chmod +x gradlew
+          chmod +x android/gradlew
 
-      - name: Build Android APK (Debug & Release unsigned)
+      - name: Build Android Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug assembleRelease --stacktrace
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Build Android Release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --stacktrace
 
       - name: Build Android App Bundle (AAB for Play Store)
         run: |
@@ -56,19 +63,19 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Attendance-Pro-Debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: Attendance-Pro-Release-APK
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
       - name: Upload Release AAB (Google Play Store Bundle)
         uses: actions/upload-artifact@v4
         with:
           name: Attendance-Pro-Release-AAB
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          path: android/app/build/outputs/bundle/release/*.aab
           retention-days: 30
