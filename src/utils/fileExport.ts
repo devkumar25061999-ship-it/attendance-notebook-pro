@@ -1,6 +1,5 @@
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 
 export interface FileExportOptions {
   filename: string;
@@ -13,94 +12,73 @@ export interface FileExportOptions {
 export interface ExportResult {
   success: boolean;
   message: string;
-  method: 'native_share' | 'web_share' | 'browser_download';
+  method: 'android_download' | 'browser_download' | 'native_fallback';
 }
 
 /**
- * Universal file export & download helper.
- * Works seamlessly in:
- * 1. Android APK (Capacitor WebView) via Native Filesystem + Android Share/Save sheet
- * 2. Mobile web browsers via Web Share API
- * 3. Desktop/laptop browsers via standard Blob download
+ * Universal Direct File Download Helper.
+ * 
+ * 1. In Android APK: Uses Android Native bridge to directly save the file into 
+ *    the device's public "Downloads" folder (without opening share apps or WhatsApp).
+ * 2. In Web Browsers: Triggers direct instant download via Blob link.
  */
 export async function exportAndSaveFile({
   filename,
   content,
   mimeType,
-  title,
-  dialogTitle,
 }: FileExportOptions): Promise<ExportResult> {
-  const fileTitle = title || filename;
-  const sheetTitle = dialogTitle || `Save or Share ${filename}`;
-
-  // 1. Android / iOS Native App (Capacitor)
-  if (Capacitor.isNativePlatform()) {
+  // 1. Android Native Direct Download (into device's /Downloads folder)
+  if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.downloadFile) {
     try {
-      // Write file into device cache directory (always permitted on all Android versions)
-      const fileResult = await Filesystem.writeFile({
-        path: filename,
-        data: content,
-        directory: Directory.Cache,
-        encoding: Encoding.UTF8,
-      });
-
-      // Open Android system Share / Save intent sheet
-      // Allows user to "Save to device", "Open in Excel / Sheets", "Send to WhatsApp", etc.
-      await Share.share({
-        title: fileTitle,
-        text: fileTitle,
-        url: fileResult.uri,
-        dialogTitle: sheetTitle,
-      });
-
-      return {
-        success: true,
-        message: 'File ready! Select "Save to device" or choose an app like Excel / WhatsApp.',
-        method: 'native_share',
-      };
-    } catch (nativeError: any) {
-      console.warn('Native export error, falling back:', nativeError);
-      // If user cancelled the share dialog, consider it completed
-      if (nativeError?.message?.includes('cancelled') || nativeError?.message?.includes('canceled')) {
+      const ok = (window as any).AndroidNativePrint.downloadFile(filename, content, mimeType);
+      if (ok) {
         return {
           success: true,
-          message: 'Share cancelled.',
-          method: 'native_share',
+          message: `Saved to Downloads: ${filename}`,
+          method: 'android_download',
         };
       }
+    } catch (androidErr) {
+      console.warn('AndroidNativePrint.downloadFile failed:', androidErr);
     }
   }
 
-  // 2. Mobile Browser Web Share API fallback (if supported)
-  if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
+  // 2. Capacitor Filesystem fallback (if on native device without bridge)
+  if (Capacitor.isNativePlatform()) {
     try {
-      const file = new File([content], filename, { type: mimeType });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: fileTitle,
-          text: fileTitle,
+      await Filesystem.writeFile({
+        path: `Download/${filename}`,
+        data: content,
+        directory: Directory.ExternalStorage,
+        encoding: Encoding.UTF8,
+        recursive: true,
+      });
+      return {
+        success: true,
+        message: `Saved to Downloads: ${filename}`,
+        method: 'android_download',
+      };
+    } catch (fsErr) {
+      // Try Documents directory
+      try {
+        await Filesystem.writeFile({
+          path: filename,
+          data: content,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8,
         });
         return {
           success: true,
-          message: 'File shared successfully!',
-          method: 'web_share',
+          message: `Saved to Documents: ${filename}`,
+          method: 'android_download',
         };
-      }
-    } catch (shareError: any) {
-      if (shareError?.name !== 'AbortError') {
-        console.warn('Web share failed, trying browser download:', shareError);
-      } else {
-        return {
-          success: true,
-          message: 'Share cancelled.',
-          method: 'web_share',
-        };
+      } catch (docErr) {
+        console.warn('Capacitor Filesystem write error:', docErr);
       }
     }
   }
 
-  // 3. Desktop / Standard Browser Blob Download
+  // 3. Desktop / Mobile Browser Direct Blob Download
   try {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -128,9 +106,12 @@ export async function exportAndSaveFile({
 }
 
 /**
- * Universal Print Helper.
- * In Android APK: invokes native Android PrintManager via JavascriptInterface.
- * In Browser: invokes window.print() or opens printable view.
+ * Universal Clean Slip Print Helper.
+ * 
+ * 1. In Android APK: Uses printSlipHtml to render ONLY the isolated A4 salary slip
+ *    in an offscreen WebView and hands it to Android PrintManager (Save as PDF or Print).
+ *    This ensures that background screens, app bars, or modals NEVER appear in the printout!
+ * 2. In Browser: Opens clean printable window or triggers print.
  */
 export async function printOrSaveSlip({
   jobName,
@@ -139,35 +120,57 @@ export async function printOrSaveSlip({
   jobName: string;
   htmlContent: string;
 }): Promise<{ success: boolean; message: string }> {
-  // 1. Android Native Print Bridge in APK
+  // 1. Android Native Isolated Slip Print (Only the clean slip, no app UI)
+  if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.printSlipHtml) {
+    try {
+      (window as any).AndroidNativePrint.printSlipHtml(htmlContent, jobName);
+      return {
+        success: true,
+        message: 'Opening Print / PDF dialog...',
+      };
+    } catch (nativePrintErr) {
+      console.warn('AndroidNativePrint.printSlipHtml failed:', nativePrintErr);
+    }
+  }
+
+  // Fallback to older bridge if printSlipHtml isn't ready yet
   if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.printDocument) {
     try {
       (window as any).AndroidNativePrint.printDocument(jobName);
       return {
         success: true,
-        message: 'Opening Android Print / PDF Dialog...',
+        message: 'Opening Print / PDF dialog...',
       };
-    } catch (nativePrintErr) {
-      console.warn('AndroidNativePrint failed:', nativePrintErr);
+    } catch (legacyErr) {
+      console.warn('AndroidNativePrint.printDocument failed:', legacyErr);
     }
   }
 
-  // 2. If in native app without print bridge: export HTML slip via Share Sheet
-  if (Capacitor.isNativePlatform()) {
-    const res = await exportAndSaveFile({
-      filename: `${jobName.replace(/\s+/g, '_')}.html`,
-      content: htmlContent,
-      mimeType: 'text/html;charset=utf-8',
-      title: jobName,
-      dialogTitle: 'Print or Save Salary Slip as PDF',
-    });
-    return {
-      success: res.success,
-      message: 'Choose Chrome / Drive Viewer to Print, or Save as PDF.',
-    };
+  // 2. Standard Web Browser: open clean print window
+  try {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        try {
+          printWindow.print();
+        } catch (e) {
+          console.warn('printWindow.print failed:', e);
+        }
+      }, 350);
+      return {
+        success: true,
+        message: 'Print preview opened.',
+      };
+    }
+  } catch (winErr) {
+    console.warn('Failed to open print window:', winErr);
   }
 
-  // 3. Standard Web Browser: window.print()
+  // Fallback: window.print()
   try {
     window.print();
     return {
@@ -175,7 +178,7 @@ export async function printOrSaveSlip({
       message: 'Print dialog opened.',
     };
   } catch (e) {
-    // If window.print is blocked (e.g. iframe)
+    // If blocked, direct download the HTML slip
     const res = await exportAndSaveFile({
       filename: `${jobName.replace(/\s+/g, '_')}.html`,
       content: htmlContent,
@@ -184,7 +187,7 @@ export async function printOrSaveSlip({
     });
     return {
       success: res.success,
-      message: 'Print slip file generated. Open to print.',
+      message: res.message,
     };
   }
 }
