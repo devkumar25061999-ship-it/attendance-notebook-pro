@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BookOpen, Plus, Search, Pin, Trash2, Edit3, Check, Calendar, ArrowRight, Share2, DollarSign, Tag, X, FileText, Download } from 'lucide-react';
 import { NoteItem, NoteCategory } from '../types';
 import { formatDateDisplay } from '../utils/dateUtils';
+import { exportAndSaveFile } from '../utils/fileExport';
 
 interface NotebookModalProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
   const [amount, setAmount] = useState<string>('');
   const [isPinned, setIsPinned] = useState(false);
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
+  const [exportStatus, setExportStatus] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -119,21 +121,26 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
     .filter((n) => n.category === 'khata' && n.amount)
     .reduce((sum, n) => sum + (n.amount || 0), 0);
 
-  const exportNotesAsTxt = () => {
+  const exportNotesAsTxt = async () => {
     const lines = notes.map(
       (n, i) =>
         `#${i + 1} [${n.date}] ${n.title.toUpperCase()} (${n.category})\n` +
         (n.amount ? `Amount: ₹${n.amount}\n` : '') +
         `${n.content}\n----------------------------------------\n`
     );
-    const blob = new Blob([`ATTENDANCE PLUS NOTEBOOK EXPORT\n\n${lines.join('\n')}`], {
-      type: 'text/plain;charset=utf-8',
+    const content = `ATTENDANCE PLUS NOTEBOOK EXPORT\nTotal Notes: ${notes.length}\nDate: ${new Date().toLocaleDateString()}\n\n${lines.join('\n')}`;
+    const filename = `attendance-notebook-notes-${new Date().toISOString().split('T')[0]}.txt`;
+
+    setExportStatus('Exporting notes...');
+    const result = await exportAndSaveFile({
+      filename,
+      content,
+      mimeType: 'text/plain;charset=utf-8',
+      title: 'Attendance Notebook Notes',
+      dialogTitle: 'Save or Share Notes',
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `attendance-notebook-notes-${new Date().toISOString().split('T')[0]}.txt`;
-    a.click();
+    setExportStatus(result.message);
+    setTimeout(() => setExportStatus(null), 4500);
   };
 
   const getCategoryBadge = (cat: NoteCategory) => {
@@ -193,6 +200,16 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Status notification */}
+        {exportStatus && (
+          <div className="bg-cyan-900/90 text-cyan-100 px-4 py-2 text-xs font-bold border-b border-cyan-700 flex items-center justify-between animate-in fade-in">
+            <span>{exportStatus}</span>
+            <button onClick={() => setExportStatus(null)} className="text-cyan-300 hover:text-white">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         {/* Khata / Advance quick bar if any exists */}
         {totalAdvance > 0 && (

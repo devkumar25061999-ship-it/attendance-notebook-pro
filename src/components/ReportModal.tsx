@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { AttendanceRecord, AppSettings } from '../types';
 import { MONTH_NAMES } from '../utils/dateUtils';
+import { exportAndSaveFile, printOrSaveSlip } from '../utils/fileExport';
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -392,64 +393,44 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 </html>`;
   };
 
-  // 1. Direct Print Execution with guaranteed fallback options
-  const handlePrint = () => {
+  // 1. Direct Print Execution with guaranteed Android & Web compatibility
+  const handlePrint = async () => {
     setActiveTab('slip');
-    setShowPrintModal(true);
-
-    // Generate blob URL for top-level printing
     const slipHtml = generateSlipHtml();
-    const blob = new Blob([slipHtml], { type: 'text/html;charset=utf-8;' });
-    const blobUrl = URL.createObjectURL(blob);
+    const jobName = `Salary_Slip_${settings.employeeName.replace(/\s+/g, '_')}_${monthName}_${year}`;
 
-    // Try opening in new window/tab first (top-level window is NOT blocked by iframe sandbox)
-    try {
-      const newWin = window.open(blobUrl, '_blank');
-      if (newWin && !newWin.closed) {
-        setPrintStatus('Opened in new tab! Use browser print or Save as PDF.');
-        setTimeout(() => setPrintStatus(null), 4000);
-        return;
-      }
-    } catch (e) {
-      console.warn('window.open was blocked by sandbox:', e);
-    }
-
-    // Try native window.print() if allowed by host
-    try {
-      window.print();
-    } catch (e) {
-      console.warn('Direct window.print error:', e);
-    }
+    setPrintStatus('Opening Print / PDF...');
+    const res = await printOrSaveSlip({
+      jobName,
+      htmlContent: slipHtml,
+    });
+    setPrintStatus(res.message);
+    setTimeout(() => setPrintStatus(null), 5000);
   };
 
   // 2. Direct Download Printable Slip (PDF / HTML)
-  const handleDownloadSlipHtml = () => {
+  const handleDownloadSlipHtml = async () => {
     const slipHtml = generateSlipHtml();
-    const blob = new Blob([slipHtml], { type: 'text/html;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Salary_Slip_${settings.employeeName.replace(/\s+/g, '_')}_${monthName}_${year}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setPrintStatus('Downloaded! Open file to print or save as PDF.');
-    setTimeout(() => setPrintStatus(null), 4000);
+    const filename = `Salary_Slip_${settings.employeeName.replace(/\s+/g, '_')}_${monthName}_${year}.html`;
+    setPrintStatus('Preparing Salary Slip file...');
+    const res = await exportAndSaveFile({
+      filename,
+      content: slipHtml,
+      mimeType: 'text/html;charset=utf-8;',
+      title: `Salary Slip - ${settings.employeeName} (${monthName} ${year})`,
+      dialogTitle: 'Save or Share Salary Slip',
+    });
+    setPrintStatus(res.message);
+    setTimeout(() => setPrintStatus(null), 5000);
   };
 
   // 3. Open in New Tab for Printing
   const handleOpenInNewTab = () => {
-    const slipHtml = generateSlipHtml();
-    const blob = new Blob([slipHtml], { type: 'text/html;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, '_blank');
-    if (!win) {
-      handleDownloadSlipHtml();
-    }
+    handlePrint();
   };
 
-  // 3. Export CSV
-  const handleExportCSV = () => {
+  // 4. Export CSV / Excel
+  const handleExportCSV = async () => {
     const headers = [
       'Date',
       'Status',
@@ -485,14 +466,17 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       `Total Work Days: ${workDays} | Total OT Hours: ${totalOtHours} | Total Net Salary: Rs. ${totalNetSalary}\n\n` +
       [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Attendance_Report_${settings.employeeId}_${monthName}_${year}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const filename = `Attendance_Report_${settings.employeeId || 'Staff'}_${monthName}_${year}.csv`;
+    setPrintStatus('Exporting Excel / CSV...');
+    const res = await exportAndSaveFile({
+      filename,
+      content: csvContent,
+      mimeType: 'text/csv;charset=utf-8;',
+      title: `Attendance Report - ${monthName} ${year}`,
+      dialogTitle: 'Save or Open Excel Report',
+    });
+    setPrintStatus(res.message);
+    setTimeout(() => setPrintStatus(null), 5000);
   };
 
   // 4. WhatsApp Share

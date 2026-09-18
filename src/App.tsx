@@ -26,6 +26,7 @@ import {
 } from './utils/storage';
 import { AttendanceRecord, AttendanceStatus, AppSettings, NoteItem } from './types';
 import { INITIAL_ATTENDANCE, INITIAL_NOTES, DEMO_ATTENDANCE, DEMO_NOTES } from './data/defaultData';
+import { exportAndSaveFile } from './utils/fileExport';
 
 export default function App() {
   // App state
@@ -288,7 +289,7 @@ export default function App() {
   };
 
   // Export JSON backup
-  const handleExportJSON = () => {
+  const handleExportJSON = async () => {
     const data = {
       app: 'Attendance Notebook Pro',
       version: '1.0.0',
@@ -297,12 +298,14 @@ export default function App() {
       records,
       notes,
     };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `attendance_notebook_pro_backup_${year}_${monthIndex + 1}.json`;
-    link.click();
+    const filename = `attendance_notebook_pro_backup_${year}_${monthIndex + 1}.json`;
+    await exportAndSaveFile({
+      filename,
+      content: JSON.stringify(data, null, 2),
+      mimeType: 'application/json',
+      title: 'Attendance Notebook Pro - Data Backup',
+      dialogTitle: 'Save or Share Data Backup',
+    });
   };
 
   const handleImportJSON = (jsonStr: string) => {
