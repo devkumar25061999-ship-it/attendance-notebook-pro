@@ -28,6 +28,7 @@ import { AttendanceRecord, AttendanceStatus, AppSettings, NoteItem } from './typ
 import { INITIAL_ATTENDANCE, INITIAL_NOTES, DEMO_ATTENDANCE, DEMO_NOTES } from './data/defaultData';
 import { exportAndSaveFile } from './utils/fileExport';
 import { scheduleDailyReminders } from './utils/notifications';
+import { initializeAdMob, showInterstitialAd } from './utils/admob';
 
 export default function App() {
   // App state
@@ -53,9 +54,10 @@ export default function App() {
   const [isFacePunchModalOpen, setIsFacePunchModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
-  // Auto-sync storage
+  // Auto-sync storage & native initialization
   useEffect(() => {
     scheduleDailyReminders().catch((err) => console.log('Notification setup error:', err));
+    initializeAdMob().catch((err) => console.log('AdMob setup error:', err));
   }, []);
 
   useEffect(() => {
@@ -328,7 +330,10 @@ export default function App() {
           year={year}
           onOpenYearModal={() => setIsYearModalOpen(true)}
           onOpenGuideModal={() => setIsGuideModalOpen(true)}
-          onOpenReportModal={() => setIsReportModalOpen(true)}
+          onOpenReportModal={() => {
+            showInterstitialAd();
+            setIsReportModalOpen(true);
+          }}
           onOpenNotebookModal={() => setIsNotebookModalOpen(true)}
           onOpenReferModal={() => setIsReferModalOpen(true)}
           onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
