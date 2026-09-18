@@ -40,16 +40,20 @@ public class MainActivity extends BridgeActivity {
 
     public class AndroidNativeInterface {
         /**
-         * Direct Download to Device Downloads folder.
-         * Saves directly into phone's Downloads directory and notifies the system.
+         * Direct Download to Device Downloads folder with instant Share/Open Chooser.
+         * Saves directly into phone's Downloads directory and provides open/share action.
          */
         @JavascriptInterface
         public boolean downloadFile(final String filename, final String content, final String mimeType) {
             try {
+                final String cleanMime = (mimeType != null && mimeType.contains(";")) 
+                    ? mimeType.split(";")[0].trim() 
+                    : (mimeType != null && !mimeType.trim().isEmpty() ? mimeType.trim() : "text/plain");
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
-                    values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+                    values.put(MediaStore.MediaColumns.MIME_TYPE, cleanMime);
                     values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
 
                     Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
@@ -72,13 +76,39 @@ public class MainActivity extends BridgeActivity {
                     fos.flush();
                     fos.close();
 
-                    MediaScannerConnection.scanFile(MainActivity.this, new String[]{file.getAbsolutePath()}, new String[]{mimeType}, null);
+                    MediaScannerConnection.scanFile(MainActivity.this, new String[]{file.getAbsolutePath()}, new String[]{cleanMime}, null);
+                }
+
+                // Also save to cache and launch Share / Open Intent Chooser so user can open in Excel, Chrome, or Notes
+                try {
+                    File cacheFile = new File(getCacheDir(), filename);
+                    FileOutputStream fos = new FileOutputStream(cacheFile);
+                    fos.write(content.getBytes(StandardCharsets.UTF_8));
+                    fos.flush();
+                    fos.close();
+
+                    Uri contentUri = androidx.core.content.FileProvider.getUriForFile(
+                        MainActivity.this, 
+                        getPackageName() + ".fileprovider", 
+                        cacheFile
+                    );
+
+                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                    sendIntent.setType(cleanMime);
+                    sendIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    
+                    Intent chooser = Intent.createChooser(sendIntent, "Save / Open " + filename);
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    MainActivity.this.startActivity(chooser);
+                } catch (Exception shareEx) {
+                    shareEx.printStackTrace();
                 }
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MainActivity.this, "Downloaded to Downloads: " + filename, Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "File Saved to Downloads: " + filename, Toast.LENGTH_LONG).show();
                     }
                 });
                 return true;

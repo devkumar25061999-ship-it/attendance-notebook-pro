@@ -416,7 +416,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     const res = await exportAndSaveFile({
       filename,
       content: slipHtml,
-      mimeType: 'text/html;charset=utf-8;',
+      mimeType: 'text/html',
       title: `Salary Slip - ${settings.employeeName} (${monthName} ${year})`,
       dialogTitle: 'Save or Share Salary Slip',
     });
@@ -471,7 +471,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     const res = await exportAndSaveFile({
       filename,
       content: csvContent,
-      mimeType: 'text/csv;charset=utf-8;',
+      mimeType: 'text/csv',
       title: `Attendance Report - ${monthName} ${year}`,
       dialogTitle: 'Save or Open Excel Report',
     });

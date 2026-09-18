@@ -135,7 +135,7 @@ export const NotebookModal: React.FC<NotebookModalProps> = ({
     const result = await exportAndSaveFile({
       filename,
       content,
-      mimeType: 'text/plain;charset=utf-8',
+      mimeType: 'text/plain',
       title: 'Attendance Notebook Notes',
       dialogTitle: 'Save or Share Notes',
     });

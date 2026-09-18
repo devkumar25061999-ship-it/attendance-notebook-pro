@@ -27,10 +27,13 @@ export async function exportAndSaveFile({
   content,
   mimeType,
 }: FileExportOptions): Promise<ExportResult> {
-  // 1. Android Native Direct Download (into device's /Downloads folder)
+  // Sanitize MIME type (remove trailing parameters like ;charset=utf-8 for Android MediaStore safety)
+  const cleanMime = mimeType ? mimeType.split(';')[0].trim() : 'text/plain';
+
+  // 1. Android Native Direct Download (into device's /Downloads folder + Open Chooser)
   if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.downloadFile) {
     try {
-      const ok = (window as any).AndroidNativePrint.downloadFile(filename, content, mimeType);
+      const ok = (window as any).AndroidNativePrint.downloadFile(filename, content, cleanMime);
       if (ok) {
         return {
           success: true,
@@ -80,7 +83,7 @@ export async function exportAndSaveFile({
 
   // 3. Desktop / Mobile Browser Direct Blob Download
   try {
-    const blob = new Blob([content], { type: mimeType });
+    const blob = new Blob([content], { type: cleanMime });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
