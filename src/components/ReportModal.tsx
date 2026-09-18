@@ -37,7 +37,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   records,
   settings,
 }) => {
-  const [activeTab, setActiveTab] = useState<'summary' | 'slip'>('summary');
+  const [activeTab, setActiveTab] = useState<'monthly' | 'yearly' | 'slip'>('monthly');
   const [copied, setCopied] = useState(false);
   const [printStatus, setPrintStatus] = useState<string | null>(null);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -51,7 +51,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const monthRecords = Object.values(records).filter((r) => r.date.startsWith(prefix));
   const sortedRecords = [...monthRecords].sort((a, b) => a.date.localeCompare(b.date));
 
-  // Count stats
+  // Monthly stats
   const workDays = monthRecords.filter((r) => r.status === 'work').length;
   const halfDays = monthRecords.filter((r) => r.status === 'half_duty').length;
   const holidays = monthRecords.filter((r) => r.status === 'holiday').length;
@@ -67,6 +67,50 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const halfDaySalary = halfDays * (settings.dailyWage / 2);
   const otSalary = totalOtHours * settings.hourlyOt;
   const totalNetSalary = baseSalary + halfDaySalary + otSalary;
+
+  // Yearly Ledger Stats Calculation for the selected year
+  const yearlyMonthsData = MONTH_NAMES.map((mName, idx) => {
+    const monthPrefix = `${year}-${String(idx + 1).padStart(2, '0')}`;
+    const mRecords = Object.values(records).filter((r) => r.date.startsWith(monthPrefix));
+    const wDays = mRecords.filter((r) => r.status === 'work').length;
+    const hDays = mRecords.filter((r) => r.status === 'half_duty').length;
+    const otHrs = mRecords.reduce((sum, r) => sum + (r.overtimeHours || 0), 0);
+    const lvs = mRecords.filter((r) => ['sick', 'vacation', 'emergency'].includes(r.status)).length;
+    const bPay = wDays * settings.dailyWage + hDays * (settings.dailyWage / 2);
+    const oPay = otHrs * settings.hourlyOt;
+    const total = bPay + oPay;
+
+    return {
+      monthName: mName,
+      monthIndex: idx,
+      workDays: wDays,
+      halfDays: hDays,
+      dutyDays: wDays + hDays * 0.5,
+      overtimeHours: otHrs,
+      leaves: lvs,
+      totalEarnings: total,
+    };
+  });
+
+  const yearlyTotalNetSalary = yearlyMonthsData.reduce((sum, m) => sum + m.totalEarnings, 0);
+  const yearlyTotalDutyDays = yearlyMonthsData.reduce((sum, m) => sum + m.dutyDays, 0);
+  const yearlyTotalOtHours = yearlyMonthsData.reduce((sum, m) => sum + m.overtimeHours, 0);
+  const yearlyTotalLeaves = yearlyMonthsData.reduce((sum, m) => sum + m.leaves, 0);
+
+  // Previous year earnings for comparison
+  const prevYearTotalNetSalary = MONTH_NAMES.reduce((sum, _, idx) => {
+    const monthPrefix = `${year - 1}-${String(idx + 1).padStart(2, '0')}`;
+    const mRecords = Object.values(records).filter((r) => r.date.startsWith(monthPrefix));
+    const wDays = mRecords.filter((r) => r.status === 'work').length;
+    const hDays = mRecords.filter((r) => r.status === 'half_duty').length;
+    const otHrs = mRecords.reduce((s, r) => s + (r.overtimeHours || 0), 0);
+    return sum + (wDays * settings.dailyWage + hDays * (settings.dailyWage / 2) + otHrs * settings.hourlyOt);
+  }, 0);
+
+  const earningsDiffWithPrevYear = yearlyTotalNetSalary - prevYearTotalNetSalary;
+  const earningsGrowthPct = prevYearTotalNetSalary > 0
+    ? ((earningsDiffWithPrevYear / prevYearTotalNetSalary) * 100).toFixed(1)
+    : null;
 
   // Generate complete printable A4 HTML Slip
   const generateSlipHtml = () => {
@@ -532,28 +576,38 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
-            {/* View Switcher Tabs */}
-            <div className="flex bg-slate-900/80 p-0.5 rounded-xl border border-slate-700">
+            {/* View Switcher Tabs: Monthly, Yearly, Paper Slip */}
+            <div className="flex bg-slate-900/80 p-0.5 rounded-xl border border-slate-700 text-xs font-black">
               <button
-                onClick={() => setActiveTab('summary')}
-                className={`px-2.5 py-1 text-xs font-black rounded-lg transition-all ${
-                  activeTab === 'summary'
+                onClick={() => setActiveTab('monthly')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  activeTab === 'monthly'
                     ? 'bg-amber-400 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
-                Summary
+                Monthly
+              </button>
+              <button
+                onClick={() => setActiveTab('yearly')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  activeTab === 'yearly'
+                    ? 'bg-amber-400 text-slate-950 shadow-xs'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                Yearly ({year})
               </button>
               <button
                 onClick={() => setActiveTab('slip')}
-                className={`px-2.5 py-1 text-xs font-black rounded-lg transition-all flex items-center gap-1 ${
+                className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
                   activeTab === 'slip'
                     ? 'bg-amber-400 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <Eye className="w-3 h-3" />
-                <span>Paper Slip</span>
+                <span>Slip</span>
               </button>
             </div>
 
@@ -581,8 +635,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
-          {activeTab === 'summary' ? (
-            /* Summary View */
+          {activeTab === 'monthly' ? (
+            /* Monthly Summary View */
             <div className="space-y-4">
               {/* Employee & Company Header Banner */}
               <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 text-white rounded-2xl p-3.5 sm:p-4 shadow-sm border border-slate-800">
@@ -713,6 +767,86 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Copied!' : 'Copy'}</span>
                 </button>
+              </div>
+            </div>
+          ) : activeTab === 'yearly' ? (
+            /* Yearly Summary View (Jan to Dec Ledger & YoY Comparison) */
+            <div className="space-y-4 animate-in fade-in duration-150">
+              {/* Top Yearly Summary Card */}
+              <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 shadow-md border-2 border-amber-400/40">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
+                      Yearly Total Earnings ({year})
+                    </span>
+                    <div className="text-2xl sm:text-3xl font-black text-amber-300 font-mono mt-0.5">
+                      ₹{yearlyTotalNetSalary.toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                  {earningsGrowthPct && (
+                    <div className={`px-2.5 py-1 rounded-xl text-xs font-black flex items-center gap-1 border ${
+                      earningsDiffWithPrevYear >= 0
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    }`}>
+                      <span>{earningsDiffWithPrevYear >= 0 ? '↑' : '↓'}</span>
+                      <span>{earningsGrowthPct}% vs {year - 1}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-800">
+                  <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                    <div className="text-lg font-black text-blue-300">{yearlyTotalDutyDays}</div>
+                    <div className="text-[9px] text-slate-400 font-bold">Duty Days</div>
+                  </div>
+                  <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                    <div className="text-lg font-black text-emerald-300">{yearlyTotalOtHours}h</div>
+                    <div className="text-[9px] text-slate-400 font-bold">OT Hours</div>
+                  </div>
+                  <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                    <div className="text-lg font-black text-rose-300">{yearlyTotalLeaves}</div>
+                    <div className="text-[9px] text-slate-400 font-bold">Leaves</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 12 Months Ledger Grid */}
+              <div>
+                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+                  <span>January - December ({year}) Ledger:</span>
+                  <span className="text-[10px] text-slate-500 font-normal">12 Months Summary</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  {yearlyMonthsData.map((m) => (
+                    <div
+                      key={m.monthIndex}
+                      className={`p-3 rounded-2xl border transition-all ${
+                        m.monthIndex === monthIndex
+                          ? 'bg-amber-50/80 border-amber-400 ring-2 ring-amber-300/60'
+                          : m.totalEarnings > 0
+                          ? 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
+                          : 'bg-slate-50/60 border-slate-200 text-slate-400'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="font-extrabold text-xs text-slate-900">
+                          {m.monthName} {year}
+                        </span>
+                        <span className="font-black text-sm text-emerald-700 font-mono">
+                          ₹{m.totalEarnings.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[10.5px] text-slate-600 font-medium">
+                        <span>Duty: <strong>{m.workDays}d</strong> {m.halfDays > 0 ? `(${m.halfDays} half)` : ''}</span>
+                        <span>OT: <strong>{m.overtimeHours}h</strong></span>
+                        <span>Leaves: <strong>{m.leaves}d</strong></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           ) : (

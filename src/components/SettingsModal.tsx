@@ -21,8 +21,15 @@ import {
   HelpCircle,
   FileText,
   Share2,
+  Bell,
 } from 'lucide-react';
 import { AppSettings } from '../types';
+import {
+  scheduleDailyReminders,
+  cancelAllReminders,
+  triggerTestNotification,
+  DEFAULT_REMINDER_TIMES,
+} from '../utils/notifications';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -47,7 +54,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onOpenRefer,
   onOpenGuide,
 }) => {
-  const [activeTab, setActiveTab] = useState<'general' | 'notebook' | 'data' | 'about'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'notebook' | 'reminders' | 'data' | 'about'>('general');
+  const [remindersEnabled, setRemindersEnabled] = useState(true);
+  const [reminderStatusMsg, setReminderStatusMsg] = useState<string | null>(null);
+
+  const handleToggleReminders = async () => {
+    if (remindersEnabled) {
+      await cancelAllReminders();
+      setRemindersEnabled(false);
+      setReminderStatusMsg('Reminders disabled');
+    } else {
+      const ok = await scheduleDailyReminders();
+      setRemindersEnabled(ok);
+      setReminderStatusMsg(ok ? '5 Daily Reminders Enabled!' : 'Permission denied for notifications');
+    }
+    setTimeout(() => setReminderStatusMsg(null), 3000);
+  };
+
+  const handleTestNotification = async () => {
+    const ok = await triggerTestNotification();
+    setReminderStatusMsg(ok ? 'Test notification sent!' : 'Unable to send notification');
+    setTimeout(() => setReminderStatusMsg(null), 3000);
+  };
   const [formData, setFormData] = useState<AppSettings>({ ...settings });
   const [saveSuccess, setSaveSuccess] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -120,6 +148,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           >
             <BookOpen className="w-3.5 h-3.5 text-cyan-700" />
             <span>Notepad Diary</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reminders')}
+            className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all ${
+              activeTab === 'reminders'
+                ? 'bg-white shadow-xs text-slate-900 border border-amber-300 font-extrabold'
+                : 'text-slate-600 hover:bg-white/60'
+            }`}
+          >
+            <Bell className="w-3.5 h-3.5 text-amber-600" />
+            <span>Reminders</span>
           </button>
 
           <button
@@ -409,6 +449,83 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </ul>
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'reminders' && (
+            <div className="space-y-4 animate-in fade-in duration-150">
+              <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-xs text-amber-950 space-y-1.5">
+                <div className="font-extrabold text-sm text-amber-900 flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-amber-700" />
+                  <span>Daily Attendance Reminders (4-5 Times / Day)</span>
+                </div>
+                <p className="leading-snug">
+                  Automatic daily notification reminders help keep your attendance logs accurate without missing duty punches or overtime hours.
+                </p>
+              </div>
+
+              {reminderStatusMsg && (
+                <div className="p-3 bg-emerald-100 border border-emerald-300 text-emerald-950 rounded-xl text-xs font-bold animate-in slide-in-from-top-1">
+                  {reminderStatusMsg}
+                </div>
+              )}
+
+              {/* Toggle Switch */}
+              <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-2xs">
+                <div>
+                  <div className="font-extrabold text-slate-900 text-sm">
+                    Enable Daily Notifications
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    Schedules 5 reminders daily on Android device
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleToggleReminders}
+                  className={`w-12 h-7 rounded-full transition-colors relative focus:outline-hidden ${
+                    remindersEnabled ? 'bg-emerald-600' : 'bg-slate-300'
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform shadow-xs ${
+                      remindersEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Scheduled Times Display */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+                  Daily Scheduled Alarm Times:
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  {DEFAULT_REMINDER_TIMES.map((time, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between font-bold"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        <span className="text-slate-900 font-mono">{time.title.split(' ')[0]} {time.title.split(' ')[1]}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-semibold">{time.body}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Send Test Notification Button */}
+              <button
+                type="button"
+                onClick={handleTestNotification}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all active:scale-98"
+              >
+                <Bell className="w-4 h-4 shrink-0" />
+                <span>Test Notification Now</span>
+              </button>
             </div>
           )}
 

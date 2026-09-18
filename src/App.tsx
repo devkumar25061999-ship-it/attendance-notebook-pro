@@ -27,6 +27,7 @@ import {
 import { AttendanceRecord, AttendanceStatus, AppSettings, NoteItem } from './types';
 import { INITIAL_ATTENDANCE, INITIAL_NOTES, DEMO_ATTENDANCE, DEMO_NOTES } from './data/defaultData';
 import { exportAndSaveFile } from './utils/fileExport';
+import { scheduleDailyReminders } from './utils/notifications';
 
 export default function App() {
   // App state
@@ -53,6 +54,10 @@ export default function App() {
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   // Auto-sync storage
+  useEffect(() => {
+    scheduleDailyReminders().catch((err) => console.log('Notification setup error:', err));
+  }, []);
+
   useEffect(() => {
     saveSettings(settings);
   }, [settings]);
