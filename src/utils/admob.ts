@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 export const ADMOB_APP_ID = 'ca-app-pub-2133508635089094~8382428566';
 export const ADMOB_BANNER_ID = 'ca-app-pub-2133508635089094/3314943873';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-2133508635089094/9974711835';
+export const STARTIO_APP_ID = '208934222';
 
 let initialized = false;
 
