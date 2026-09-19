@@ -2129,52 +2129,6 @@ export const FactoryHRView: React.FC<FactoryHRViewProps> = ({ defaultHourlyOt, l
           </div>
         </div>
       )}
-
-      {/* In-App Print Preview Modal */}
-      {printModalHtml && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border border-gray-200">
-            <div className="bg-[#1F2937] text-white px-4 py-3 flex items-center justify-between border-b border-gray-700">
-              <h3 className="text-sm font-black flex items-center gap-2">
-                <Printer className="w-4 h-4 text-[#16A34A]" /> {printModalTitle}
-              </h3>
-              <button
-                onClick={() => setPrintModalHtml(null)}
-                className="w-7 h-7 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center text-white text-xs font-bold"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex-1 bg-gray-100 p-2 overflow-hidden flex flex-col min-h-[400px]">
-              <iframe
-                srcDoc={printModalHtml}
-                title="Print Preview Frame"
-                className="w-full flex-1 bg-white rounded-xl border border-gray-300 shadow-inner"
-              />
-            </div>
-            <div className="p-3 bg-white border-t border-gray-200 flex items-center justify-end gap-3">
-              <button
-                onClick={() => setPrintModalHtml(null)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-[#1F2937] font-bold text-xs rounded-xl"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  const iframe = document.querySelector('iframe[title="Print Preview Frame"]') as HTMLIFrameElement;
-                  if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.focus();
-                    iframe.contentWindow.print();
-                  }
-                }}
-                className="px-5 py-2 bg-[#16A34A] hover:bg-green-700 text-white font-black text-xs rounded-xl shadow-md flex items-center gap-1.5"
-              >
-                <Printer className="w-4 h-4" /> Print / Save PDF
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
