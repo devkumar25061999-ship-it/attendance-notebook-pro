@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, BookOpen, Settings, ChevronDown, Share2 } from 'lucide-react';
+import { BarChart3, BookOpen, Settings, ChevronDown, Share2, Users } from 'lucide-react';
 
 interface HeaderProps {
   year: number;
@@ -10,6 +10,7 @@ interface HeaderProps {
   onOpenReferModal: () => void;
   onOpenSettingsModal: () => void;
   onOpenManageDataModal: () => void;
+  onOpenFactoryHRModal: () => void;
   notesCount: number;
 }
 
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNotebookModal,
   onOpenReferModal,
   onOpenSettingsModal,
+  onOpenFactoryHRModal,
   notesCount,
 }) => {
   return (
@@ -85,6 +87,16 @@ export const Header: React.FC<HeaderProps> = ({
             title="Refer to Friend & Share App"
           >
             <Share2 className="w-3.5 h-3.5 text-amber-300" />
+          </button>
+
+          {/* Factory HR & Workers */}
+          <button
+            id="btn-open-factory-hr"
+            onClick={onOpenFactoryHRModal}
+            className="w-7.5 h-7.5 xs:w-8 xs:h-8 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-2xs"
+            title="Factory HR & Workers Manpower Portal"
+          >
+            <Users className="w-4 h-4 text-blue-300" />
           </button>
 
           {/* 4. Settings */}

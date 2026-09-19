@@ -17,7 +17,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { AttendanceRecord, AppSettings } from '../types';
-import { MONTH_NAMES } from '../utils/dateUtils';
+import { MONTH_NAMES, getMonthlyGross, calculateSalaryBreakdown } from '../utils/dateUtils';
 import { exportAndSaveFile, printOrSaveSlip } from '../utils/fileExport';
 
 interface ReportModalProps {
@@ -62,11 +62,32 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
   const totalOtHours = monthRecords.reduce((sum, r) => sum + (r.overtimeHours || 0), 0);
 
-  // Financials
-  const baseSalary = workDays * settings.dailyWage;
-  const halfDaySalary = halfDays * (settings.dailyWage / 2);
-  const otSalary = totalOtHours * settings.hourlyOt;
-  const totalNetSalary = baseSalary + halfDaySalary + otSalary;
+  // Monthly Financials with Monthly Gross, PF, ESI, OT, and Advance
+  const totalDaysWorked = workDays + halfDays * 0.5;
+  const breakdown = calculateSalaryBreakdown(settings, workDays, halfDays, totalOtHours);
+  const {
+    monthlyGross,
+    monthlyBasic,
+    monthlyHra,
+    basicPerDay,
+    hraPerDay,
+    grossPerDay,
+    dutyDays,
+    earnedBasic,
+    earnedHra,
+    totalGrossEarnings,
+    pfDeduction,
+    esiDeduction,
+    perDayWage,
+    baseSalary,
+    halfDaySalary,
+    otSalary,
+    advanceDeduction,
+    totalNetSalary,
+  } = breakdown;
+
+  const pfPct = settings.pfPercent ?? 12;
+  const esiPct = settings.esiPercent ?? 0.75;
 
   // Yearly Ledger Stats Calculation for the selected year
   const yearlyMonthsData = MONTH_NAMES.map((mName, idx) => {
@@ -74,18 +95,19 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     const mRecords = Object.values(records).filter((r) => r.date.startsWith(monthPrefix));
     const wDays = mRecords.filter((r) => r.status === 'work').length;
     const hDays = mRecords.filter((r) => r.status === 'half_duty').length;
+    const dutyD = wDays + hDays * 0.5;
     const otHrs = mRecords.reduce((sum, r) => sum + (r.overtimeHours || 0), 0);
     const lvs = mRecords.filter((r) => ['sick', 'vacation', 'emergency'].includes(r.status)).length;
-    const bPay = wDays * settings.dailyWage + hDays * (settings.dailyWage / 2);
-    const oPay = otHrs * settings.hourlyOt;
-    const total = bPay + oPay;
+    
+    const mBreakdown = calculateSalaryBreakdown(settings, wDays, hDays, otHrs);
+    const total = mBreakdown.totalNetSalary;
 
     return {
       monthName: mName,
       monthIndex: idx,
       workDays: wDays,
       halfDays: hDays,
-      dutyDays: wDays + hDays * 0.5,
+      dutyDays: dutyD,
       overtimeHours: otHrs,
       leaves: lvs,
       totalEarnings: total,
@@ -104,7 +126,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     const wDays = mRecords.filter((r) => r.status === 'work').length;
     const hDays = mRecords.filter((r) => r.status === 'half_duty').length;
     const otHrs = mRecords.reduce((s, r) => s + (r.overtimeHours || 0), 0);
-    return sum + (wDays * settings.dailyWage + hDays * (settings.dailyWage / 2) + otHrs * settings.hourlyOt);
+    return sum + (wDays * perDayWage + hDays * (perDayWage / 2) + otHrs * settings.hourlyOt);
   }, 0);
 
   const earningsDiffWithPrevYear = yearlyTotalNetSalary - prevYearTotalNetSalary;
@@ -320,7 +342,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
       <div class="info-card">
         <h4>Wage & Rate Standards</h4>
-        <div class="info-row"><span class="info-label">Daily Wage Rate:</span><span class="info-value">₹${settings.dailyWage.toLocaleString('en-IN')} / day</span></div>
+        <div class="info-row"><span class="info-label">Daily Wage Rate:</span><span class="info-value">₹${perDayWage.toLocaleString('en-IN')} / day</span></div>
+        <div class="info-row"><span class="info-label">Basic / HRA:</span><span class="info-value">₹${monthlyBasic.toLocaleString('en-IN')} / ₹${monthlyHra.toLocaleString('en-IN')}</span></div>
         <div class="info-row"><span class="info-label">Overtime Rate:</span><span class="info-value">₹${settings.hourlyOt.toLocaleString('en-IN')} / hr</span></div>
         <div class="info-row"><span class="info-label">Generated On:</span><span class="info-value">${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span></div>
       </div>
@@ -352,7 +375,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
     <table class="stats-table" style="margin-bottom: 16px;">
       <thead>
         <tr>
-          <th>Earnings Component</th>
+          <th>Earnings & Deductions Component</th>
           <th>Units / Basis</th>
           <th>Rate</th>
           <th style="text-align: right;">Amount (INR)</th>
@@ -360,23 +383,41 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       </thead>
       <tbody>
         <tr>
-          <td>Base Duty Wages</td>
-          <td>${workDays} full days</td>
-          <td>₹${settings.dailyWage}</td>
-          <td style="text-align: right; font-weight: 700;">₹${baseSalary.toLocaleString('en-IN')}</td>
+          <td>Basic Duty Wages</td>
+          <td>${dutyDays} duty days</td>
+          <td>₹${basicPerDay}/day</td>
+          <td style="text-align: right; font-weight: 700;">₹${earnedBasic.toLocaleString('en-IN')}</td>
         </tr>
-        ${halfDays > 0 ? `<tr>
-          <td>Half Duty Wages</td>
-          <td>${halfDays} half days</td>
-          <td>₹${settings.dailyWage / 2}</td>
-          <td style="text-align: right; font-weight: 700;">₹${halfDaySalary.toLocaleString('en-IN')}</td>
+        ${monthlyHra > 0 ? `<tr>
+          <td>House Rent Allowance (HRA)</td>
+          <td>${dutyDays} duty days</td>
+          <td>₹${hraPerDay}/day</td>
+          <td style="text-align: right; font-weight: 700; color: #1e40af;">+ ₹${earnedHra.toLocaleString('en-IN')}</td>
         </tr>` : ''}
         <tr>
           <td>Overtime Compensation</td>
           <td>${totalOtHours} hours</td>
           <td>₹${settings.hourlyOt}/hr</td>
-          <td style="text-align: right; font-weight: 700;">₹${otSalary.toLocaleString('en-IN')}</td>
+          <td style="text-align: right; font-weight: 700; color: #047857;">+ ₹${otSalary.toLocaleString('en-IN')}</td>
         </tr>
+        <tr>
+          <td>Provident Fund (PF Deduction)</td>
+          <td>${settings.pfPercent ?? 12}% of Basic</td>
+          <td>Standard</td>
+          <td style="text-align: right; font-weight: 700; color: #b91c1c;">- ₹${pfDeduction.toLocaleString('en-IN')}</td>
+        </tr>
+        <tr>
+          <td>ESI Deduction</td>
+          <td>${settings.esiPercent ?? 0.75}% of Basic</td>
+          <td>Standard</td>
+          <td style="text-align: right; font-weight: 700; color: #b91c1c;">- ₹${esiDeduction.toLocaleString('en-IN')}</td>
+        </tr>
+        ${advanceDeduction > 0 ? `<tr>
+          <td>Monthly Advance / Loan</td>
+          <td>Deduction</td>
+          <td>-</td>
+          <td style="text-align: right; font-weight: 700; color: #b91c1c;">- ₹${advanceDeduction.toLocaleString('en-IN')}</td>
+        </tr>` : ''}
       </tbody>
     </table>
 
@@ -487,8 +528,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
     const rows = sortedRecords.map((r) => {
       let wage = 0;
-      if (r.status === 'work') wage = settings.dailyWage;
-      else if (r.status === 'half_duty') wage = settings.dailyWage / 2;
+      if (r.status === 'work') wage = perDayWage;
+      else if (r.status === 'half_duty') wage = perDayWage / 2;
       wage += (r.overtimeHours || 0) * settings.hourlyOt;
 
       return [
@@ -506,7 +547,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       `HR ATTENDANCE & SALARY REPORT - ${monthName.toUpperCase()} ${year}\n` +
       `Employee: ${settings.employeeName} (${settings.employeeId})\n` +
       `Company: ${settings.companyName} | Dept: ${settings.department}\n` +
-      `Daily Wage: Rs. ${settings.dailyWage} | OT Rate: Rs. ${settings.hourlyOt}/hr\n` +
+      `Daily Wage: Rs. ${perDayWage} | OT Rate: Rs. ${settings.hourlyOt}/hr\n` +
       `Total Work Days: ${workDays} | Total OT Hours: ${totalOtHours} | Total Net Salary: Rs. ${totalNetSalary}\n\n` +
       [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 
@@ -548,8 +589,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       `SALARY SLIP - ${monthName.toUpperCase()} ${year}\n` +
       `Employee: ${settings.employeeName} (${settings.employeeId})\n` +
       `Company: ${settings.companyName} | Dept: ${settings.department}\n` +
-      `Work Days: ${workDays} x ₹${settings.dailyWage} = ₹${baseSalary}\n` +
-      (halfDays > 0 ? `Half Days: ${halfDays} x ₹${settings.dailyWage / 2} = ₹${halfDaySalary}\n` : '') +
+      `Work Days: ${workDays} x ₹${perDayWage} = ₹${baseSalary}\n` +
+      (halfDays > 0 ? `Half Days: ${halfDays} x ₹${perDayWage / 2} = ₹${halfDaySalary}\n` : '') +
       `Overtime: ${totalOtHours} hrs x ₹${settings.hourlyOt} = ₹${otSalary}\n` +
       `TOTAL PAYABLE: ₹${totalNetSalary.toLocaleString('en-IN')}`;
 
@@ -658,7 +699,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       {monthName} {year}
                     </div>
                     <div className="text-[10px] text-slate-400">
-                      Daily: ₹{settings.dailyWage} | OT: ₹{settings.hourlyOt}/h
+                      Daily: ₹{perDayWage} | OT: ₹{settings.hourlyOt}/h
                     </div>
                   </div>
                 </div>
@@ -672,7 +713,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       Total Net Salary:
                     </span>
                     <div className="text-[11px] text-emerald-700 font-semibold">
-                      Base wages + overtime compensation
+                      Basic + HRA + OT - PF/ESI - Advance
                     </div>
                   </div>
                   <span className="text-2xl sm:text-3xl font-black text-emerald-900 font-mono">
@@ -683,20 +724,20 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 <div className="space-y-1.5 text-xs text-emerald-950">
                   <div className="flex items-center justify-between">
                     <span>
-                      Basic Work Days ({workDays} × ₹{settings.dailyWage}):
+                      Basic Duty Wages ({dutyDays} days × ₹{basicPerDay}):
                     </span>
                     <span className="font-bold">
-                      ₹{baseSalary.toLocaleString('en-IN')}
+                      ₹{earnedBasic.toLocaleString('en-IN')}
                     </span>
                   </div>
 
-                  {halfDays > 0 && (
-                    <div className="flex items-center justify-between">
+                  {monthlyHra > 0 && (
+                    <div className="flex items-center justify-between text-blue-900">
                       <span>
-                        Half Days ({halfDays} × ₹{settings.dailyWage / 2}):
+                        House Rent Allowance (HRA) ({dutyDays} days × ₹{hraPerDay}):
                       </span>
                       <span className="font-bold">
-                        ₹{halfDaySalary.toLocaleString('en-IN')}
+                        + ₹{earnedHra.toLocaleString('en-IN')}
                       </span>
                     </div>
                   )}
@@ -709,6 +750,26 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       + ₹{otSalary.toLocaleString('en-IN')}
                     </span>
                   </div>
+
+                  <div className="flex items-center justify-between text-red-700 pt-1 border-t border-emerald-200/60">
+                    <span>
+                      PF ({settings.pfPercent ?? 12}%) &amp; ESI ({settings.esiPercent ?? 0.75}%) on Basic:
+                    </span>
+                    <span className="font-bold">
+                      - ₹{(pfDeduction + esiDeduction).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+
+                  {advanceDeduction > 0 && (
+                    <div className="flex items-center justify-between text-red-700">
+                      <span>
+                        Advance / Loan Deductions:
+                      </span>
+                      <span className="font-bold">
+                        - ₹{advanceDeduction.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -874,7 +935,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                     <div><strong>ID:</strong> {settings.employeeId}</div>
                   </div>
                   <div>
-                    <div><strong>Daily Wage:</strong> ₹{settings.dailyWage}</div>
+                    <div><strong>Daily Wage:</strong> ₹{perDayWage}</div>
                     <div><strong>OT Rate:</strong> ₹{settings.hourlyOt}/hr</div>
                   </div>
                 </div>
@@ -893,6 +954,36 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                     <div>{totalOtHours}h</div>
                     <div>{totalLeaves}</div>
                   </div>
+                </div>
+
+                {/* Earnings & Deductions Breakdown */}
+                <div className="bg-slate-50 border border-slate-300 rounded-xl p-2 mb-2.5 space-y-1 text-[10px]">
+                  <div className="flex justify-between">
+                    <span>Basic Wages ({dutyDays} days @ ₹{basicPerDay}):</span>
+                    <span className="font-bold">₹{earnedBasic.toLocaleString('en-IN')}</span>
+                  </div>
+                  {monthlyHra > 0 && (
+                    <div className="flex justify-between text-blue-900">
+                      <span>HRA ({dutyDays} days @ ₹{hraPerDay}):</span>
+                      <span className="font-bold">+ ₹{earnedHra.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  {otSalary > 0 && (
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Overtime ({totalOtHours}h @ ₹{settings.hourlyOt}/h):</span>
+                      <span className="font-bold">+ ₹{otSalary.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-red-700 border-t border-slate-200 pt-0.5">
+                    <span>PF ({settings.pfPercent ?? 12}%) + ESI ({settings.esiPercent ?? 0.75}%) on Basic:</span>
+                    <span className="font-bold">- ₹{(pfDeduction + esiDeduction).toLocaleString('en-IN')}</span>
+                  </div>
+                  {advanceDeduction > 0 && (
+                    <div className="flex justify-between text-red-700">
+                      <span>Advance Deduction:</span>
+                      <span className="font-bold">- ₹{advanceDeduction.toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Net Payable Box */}

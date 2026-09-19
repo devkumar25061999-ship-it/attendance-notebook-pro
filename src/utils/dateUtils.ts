@@ -106,3 +106,93 @@ export function formatDateDisplay(dateString: string): string {
     year: 'numeric',
   });
 }
+
+export function getMonthlyGross(rawSalary: number = 16000): number {
+  if (rawSalary > 200000) {
+    return rawSalary / 12;
+  }
+  return rawSalary;
+}
+
+export function calculateSalaryBreakdown(
+  settings: {
+    monthlyGrossSalary?: number;
+    basicSalary?: number;
+    hraAmount?: number;
+    pfPercent?: number;
+    esiPercent?: number;
+    monthlyAdvance?: number;
+    hourlyOt?: number;
+  },
+  workDays: number,
+  halfDays: number,
+  totalOtHours: number
+) {
+  const rawGross = settings.monthlyGrossSalary ?? 16000;
+  const monthlyGross = getMonthlyGross(rawGross);
+  const rawBasic = settings.basicSalary ?? 0;
+  // If basic is explicitly entered (>0), use it; otherwise default basic = gross
+  const monthlyBasic = rawBasic > 0 ? getMonthlyGross(rawBasic) : monthlyGross;
+
+  // HRA is explicitly configured or automatically the difference between Gross and Basic
+  const rawHra = settings.hraAmount ?? 0;
+  const monthlyHra = rawHra > 0 ? getMonthlyGross(rawHra) : Math.max(0, monthlyGross - monthlyBasic);
+
+  const pfPct = settings.pfPercent ?? 12;
+  const esiPct = settings.esiPercent ?? 0.75;
+
+  // PF & ESI are calculated on Basic Salary (or Gross if Basic isn't separate)
+  const deductionBase = monthlyBasic > 0 ? monthlyBasic : monthlyGross;
+  const pfDeduction = Math.round(deductionBase * (pfPct / 100));
+  const esiDeduction = Math.round(deductionBase * (esiPct / 100));
+  const monthlyNetGross = monthlyGross - pfDeduction - esiDeduction;
+
+  const totalDaysInMonth = 26;
+  const dutyDays = workDays + halfDays * 0.5;
+
+  // Per Day Rates
+  const basicPerDay = totalDaysInMonth > 0 ? monthlyBasic / totalDaysInMonth : 0;
+  const hraPerDay = totalDaysInMonth > 0 ? monthlyHra / totalDaysInMonth : 0;
+  const grossPerDay = totalDaysInMonth > 0 ? monthlyGross / totalDaysInMonth : 0;
+
+  const perDayWage = totalDaysInMonth > 0 ? monthlyNetGross / totalDaysInMonth : 0;
+  // Keep exact floating perDayWage or rounded to 2 decimals for display
+  const perDayWageRounded = Math.round(perDayWage * 100) / 100;
+
+  // Earned Components for days worked
+  const earnedBasic = Math.round(basicPerDay * dutyDays);
+  const earnedHra = Math.round(hraPerDay * dutyDays);
+  const baseSalary = perDayWage * workDays;
+  const halfDaySalary = perDayWage * 0.5 * halfDays;
+  const earnedBaseNet = baseSalary + halfDaySalary;
+
+  const otSalary = totalOtHours * (settings.hourlyOt || 150);
+  const advanceDeduction = settings.monthlyAdvance || 0;
+  const totalGrossEarnings = earnedBasic + earnedHra + otSalary;
+  const totalNetSalary = Math.max(0, Math.round(earnedBaseNet + otSalary - advanceDeduction));
+
+  return {
+    monthlyGross,
+    monthlyBasic,
+    monthlyHra,
+    basicPerDay: Math.round(basicPerDay * 100) / 100,
+    hraPerDay: Math.round(hraPerDay * 100) / 100,
+    grossPerDay: Math.round(grossPerDay * 100) / 100,
+    dutyDays,
+    earnedBasic,
+    earnedHra,
+    totalGrossEarnings,
+    pfDeduction,
+    esiDeduction,
+    monthlyNetGross,
+    perDayWage: perDayWageRounded,
+    exactPerDayWage: perDayWage,
+    baseSalary: Math.round(baseSalary),
+    halfDaySalary: Math.round(halfDaySalary),
+    earnedBaseNet,
+    otSalary,
+    advanceDeduction,
+    totalNetSalary,
+  };
+}
+

@@ -3,6 +3,12 @@ import { AppSettings, AttendanceRecord, NoteItem, AttendanceStatus } from '../ty
 export const DEFAULT_SETTINGS: AppSettings = {
   dailyWage: 800,
   hourlyOt: 150,
+  monthlyGrossSalary: 18000,
+  basicSalary: 0,
+  hraAmount: 0,
+  pfPercent: 12,
+  esiPercent: 0.75,
+  monthlyAdvance: 1000,
   companyName: 'General Works',
   employeeName: 'Self',
   employeeId: 'EMP-001',

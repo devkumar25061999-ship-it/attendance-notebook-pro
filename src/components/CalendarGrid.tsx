@@ -60,29 +60,6 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
 
   return (
     <div className="w-full px-1 sm:px-2 max-w-md mx-auto my-0.5 space-y-1">
-      {/* Live Month Duty Progress & Goal Bar */}
-      <div className="bg-slate-900 text-white rounded-xl py-1 px-2.5 shadow-xs border border-slate-800 flex items-center justify-between text-[10px] gap-2">
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Sparkles className="w-3 h-3 text-amber-400" />
-          <span className="font-extrabold text-slate-200">Goal</span>
-          <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black px-1 py-0.2 rounded-full text-[9px]">
-            {dutyPercentage}%
-          </span>
-        </div>
-
-        {/* Progress Track */}
-        <div className="flex-1 bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/60">
-          <div
-            className="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${dutyPercentage}%` }}
-          ></div>
-        </div>
-
-        <div className="text-[9.5px] font-bold text-slate-300 shrink-0">
-          {workDaysCount} Work • {totalOtHours}h OT
-        </div>
-      </div>
-
       {/* Main Calendar Card */}
       <div className="bg-white rounded-xl overflow-hidden border-2 border-indigo-950 shadow-md ring-1 ring-black/5">
         {/* Header: SUN - SAT with vivid jewel badges */}

@@ -15,7 +15,10 @@ import { DayDetailModal } from './components/DayDetailModal';
 import { FacePunchModal } from './components/FacePunchModal';
 import { ReportModal } from './components/ReportModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
-import { getCalendarGrid, CalendarDay } from './utils/dateUtils';
+import { FactoryHRModal } from './components/FactoryHRModal';
+import { FactoryHRQuickBar } from './components/FactoryHRQuickBar';
+import { FactoryHRView } from './components/FactoryHRView';
+import { getCalendarGrid, CalendarDay, getMonthlyGross, calculateSalaryBreakdown } from './utils/dateUtils';
 import {
   loadSettings,
   saveSettings,
@@ -53,6 +56,29 @@ export default function App() {
   const [isDayDetailModalOpen, setIsDayDetailModalOpen] = useState(false);
   const [isFacePunchModalOpen, setIsFacePunchModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isFactoryHRModalOpen, setIsFactoryHRModalOpen] = useState(false);
+  const [appMode, setAppMode] = useState<'self' | 'hr'>('self');
+  const [workersCount, setWorkersCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('attendance_factory_workers_v2');
+      if (saved) return JSON.parse(saved).length;
+    } catch (e) {
+      // ignore
+    }
+    return 2;
+  });
+
+  // Update workers count when modal closes
+  useEffect(() => {
+    if (!isFactoryHRModalOpen) {
+      try {
+        const saved = localStorage.getItem('attendance_factory_workers_v2');
+        if (saved) setWorkersCount(JSON.parse(saved).length);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [isFactoryHRModalOpen]);
 
   // Auto-sync storage & native initialization
   useEffect(() => {
@@ -87,24 +113,24 @@ export default function App() {
     return map;
   }, [notes]);
 
-  // Current month stats calculation
+  // Current month stats calculation with Monthly Gross Salary, PF, ESI, OT, and Advance
   const currentMonthStats = useMemo(() => {
     const prefix = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
     const monthRecords = Object.values(records).filter((r) => r.date.startsWith(prefix));
 
     const workDays = monthRecords.filter((r) => r.status === 'work').length;
     const halfDays = monthRecords.filter((r) => r.status === 'half_duty').length;
+    const totalDaysWorked = workDays + halfDays * 0.5;
     const otHours = monthRecords.reduce((sum, r) => sum + (r.overtimeHours || 0), 0);
 
-    const basePay = workDays * settings.dailyWage + halfDays * (settings.dailyWage / 2);
-    const otPay = otHours * settings.hourlyOt;
-    const totalEarnings = basePay + otPay;
+    const breakdown = calculateSalaryBreakdown(settings, workDays, halfDays, otHours);
+    const netSalary = breakdown.totalNetSalary;
 
     return {
       workDays,
       halfDays,
       overtimeHours: otHours,
-      totalEarnings,
+      totalEarnings: netSalary > 0 ? netSalary : 0,
     };
   }, [records, year, monthIndex, settings]);
 
@@ -163,9 +189,11 @@ export default function App() {
     } else {
       // Apply selected tool
       const defaultOt = selectedTool === 'overtime' ? 2 : 0;
+      const breakdown = calculateSalaryBreakdown(settings, 1, 0, 0);
+      const perDayWage = breakdown.perDayWage;
       let dayPay = 0;
-      if (selectedTool === 'work') dayPay = settings.dailyWage;
-      else if (selectedTool === 'half_duty') dayPay = settings.dailyWage / 2;
+      if (selectedTool === 'work') dayPay = perDayWage;
+      else if (selectedTool === 'half_duty') dayPay = perDayWage / 2;
       dayPay += defaultOt * settings.hourlyOt;
 
       setRecords((prev) => ({
@@ -338,13 +366,49 @@ export default function App() {
           onOpenReferModal={() => setIsReferModalOpen(true)}
           onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
           onOpenManageDataModal={() => setIsManageDataModalOpen(true)}
+          onOpenFactoryHRModal={() => setIsFactoryHRModalOpen(true)}
           notesCount={notes.length}
         />
       </div>
 
-      {/* Main Screen Content - Perfectly Fitted Single-Screen Layout (No Sliding/Scrolling) */}
+      {/* App Mode Switcher Bar */}
+      <div className="bg-slate-900 px-3 py-2 flex items-center justify-between border-b border-slate-800 shrink-0 shadow-inner">
+        <div className="text-xs font-black text-white flex items-center gap-1.5">
+          <span>Mode:</span>
+        </div>
+        <div className="flex bg-slate-800 p-1 rounded-xl gap-1">
+          <button
+            onClick={() => setAppMode('self')}
+            className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+              appMode === 'self'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            👤 Self Attendance
+          </button>
+          <button
+            onClick={() => setAppMode('hr')}
+            className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+              appMode === 'hr'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            🏭 Factory HR Mode
+          </button>
+        </div>
+      </div>
+
+      {/* Main Screen Content */}
       <main className="flex-1 w-full max-w-md mx-auto flex flex-col justify-between px-2 sm:px-3 py-1 overflow-hidden">
-        {/* Dark Pill Month Navigation */}
+        {appMode === 'hr' ? (
+          <div className="flex-1 flex flex-col my-1 overflow-hidden">
+            <FactoryHRView defaultHourlyOt={settings.hourlyOt} />
+          </div>
+        ) : (
+          <>
+            {/* Dark Pill Month Navigation */}
         <MonthNavigation
           currentMonthIndex={monthIndex}
           year={year}
@@ -359,7 +423,7 @@ export default function App() {
           halfDays={currentMonthStats.halfDays}
           overtimeHours={currentMonthStats.overtimeHours}
           totalEarnings={currentMonthStats.totalEarnings}
-          dailyWage={settings.dailyWage}
+          dailyWage={calculateSalaryBreakdown(settings, 0, 0, 0).perDayWage}
           onViewSalaryDetails={() => setIsReportModalOpen(true)}
         />
 
@@ -402,6 +466,9 @@ export default function App() {
             }
           }}
         />
+
+          </>
+        )}
 
         {/* Quick Footer Links: Refer to Friend • Privacy Policy • How to Use */}
         <footer className="w-full shrink-0 pt-1 pb-0.5 px-2 flex items-center justify-center gap-3 text-[10.5px] font-semibold text-slate-500 border-t border-slate-200/80 mt-0.5">
@@ -533,6 +600,12 @@ export default function App() {
       <PrivacyPolicyModal
         isOpen={isPrivacyModalOpen}
         onClose={() => setIsPrivacyModalOpen(false)}
+      />
+
+      <FactoryHRModal
+        isOpen={isFactoryHRModalOpen}
+        onClose={() => setIsFactoryHRModalOpen(false)}
+        defaultHourlyOt={settings.hourlyOt}
       />
     </div>
   );

@@ -24,6 +24,7 @@ import {
   Bell,
 } from 'lucide-react';
 import { AppSettings } from '../types';
+import { getMonthlyGross } from '../utils/dateUtils';
 import {
   scheduleDailyReminders,
   cancelAllReminders,
@@ -196,40 +197,172 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <strong className="font-extrabold text-emerald-900">Wage Calculation Settings:</strong> Set your daily wage rate and hourly overtime rate. Total salary and dues will be calculated automatically in monthly summaries and reports.
               </div>
 
-              {/* Wage & OT */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Daily Wage (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.dailyWage}
-                    onChange={(e) =>
-                      setFormData({ ...formData, dailyWage: Number(e.target.value) || 0 })
-                    }
-                    className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-base font-extrabold text-slate-900 focus:border-blue-600 focus:outline-hidden"
-                  />
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Daily base wage
-                  </span>
-                </div>
+              {/* Monthly Gross Salary & Deductions Structure */}
+              <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-2xl space-y-3">
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">Monthly Salary & PF/ESI Structure</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Monthly Gross Salary (or Annual CTC if &gt; ₹2L)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.monthlyGrossSalary ?? 18000}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          monthlyGrossSalary: Number(e.target.value) || 0,
+                        })
+                      }
+                      className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-base font-extrabold text-slate-900 focus:border-blue-600 focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-500 font-medium">
+                      If annual CTC is entered (&gt; ₹2,00,000), it automatically calculates monthly equivalent by dividing by 12.
+                    </span>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Hourly OT (₹/hr)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.hourlyOt}
-                    onChange={(e) =>
-                      setFormData({ ...formData, hourlyOt: Number(e.target.value) || 0 })
-                    }
-                    className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-base font-extrabold text-slate-900 focus:border-blue-600 focus:outline-hidden"
-                  />
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Overtime rate per hour
-                  </span>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Monthly Basic Salary (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.basicSalary ?? 0}
+                      onChange={(e) => {
+                        const newBasic = Number(e.target.value) || 0;
+                        setFormData({
+                          ...formData,
+                          basicSalary: newBasic,
+                        });
+                      }}
+                      placeholder="e.g. 15000"
+                      className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-base font-extrabold text-slate-900 focus:border-blue-600 focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-500 font-medium">
+                      PF & ESI are calculated on this Basic.
+                    </span>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      HRA / Rent Allowance (₹)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={
+                          formData.hraAmount !== undefined && formData.hraAmount > 0
+                            ? formData.hraAmount
+                            : formData.basicSalary && formData.basicSalary > 0
+                            ? Math.max(0, (formData.monthlyGrossSalary || 0) - formData.basicSalary)
+                            : 0
+                        }
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            hraAmount: Number(e.target.value) || 0,
+                          })
+                        }
+                        placeholder="Auto: Gross - Basic"
+                        className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-base font-extrabold text-blue-800 focus:border-blue-600 focus:outline-hidden"
+                      />
+                    </div>
+                    <span className="text-[10px] text-blue-600 font-medium">
+                      {formData.basicSalary && formData.basicSalary > 0
+                        ? `Auto HRA: ₹${Math.max(0, (formData.monthlyGrossSalary || 0) - formData.basicSalary).toLocaleString('en-IN')}`
+                        : 'Balance allowance added to Gross'}
+                    </span>
+                  </div>
+
+                  {/* Live Calculation Explainer Preview Card */}
+                  {(() => {
+                    const gross = getMonthlyGross(formData.monthlyGrossSalary || 16000);
+                    const basic = formData.basicSalary && formData.basicSalary > 0 ? getMonthlyGross(formData.basicSalary) : gross;
+                    const hra = formData.hraAmount && formData.hraAmount > 0 ? getMonthlyGross(formData.hraAmount) : Math.max(0, gross - basic);
+                    const pf = Math.round(basic * ((formData.pfPercent ?? 12) / 100));
+                    const esi = Math.round(basic * ((formData.esiPercent ?? 0.75) / 100));
+                    const net = gross - pf - esi;
+                    const perDay = Math.round((net / 26) * 100) / 100;
+                    return (
+                      <div className="col-span-2 bg-blue-50/80 border border-blue-200 rounded-xl p-3 text-xs space-y-1.5">
+                        <div className="font-extrabold text-blue-950 flex justify-between items-center">
+                          <span>Salary Formula Breakdown:</span>
+                          <span className="text-emerald-700 font-mono font-black text-sm">Net: ₹{net.toLocaleString('en-IN')} / mo</span>
+                        </div>
+                        <div className="text-[11px] text-slate-700 space-y-1">
+                          <div className="flex justify-between border-b border-blue-100 pb-1">
+                            <span>Earnings: Basic (₹{basic.toLocaleString('en-IN')}) + HRA (₹{hra.toLocaleString('en-IN')})</span>
+                            <span className="font-bold text-slate-900">= Gross ₹{gross.toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-blue-100 pb-1 text-red-700">
+                            <span>Deductions on Basic: PF ({formData.pfPercent ?? 12}% = ₹{pf.toLocaleString('en-IN')}) + ESI ({formData.esiPercent ?? 0.75}% = ₹{esi.toLocaleString('en-IN')})</span>
+                            <span className="font-bold">-₹{(pf + esi).toLocaleString('en-IN')}</span>
+                          </div>
+                          <div className="flex justify-between pt-0.5 text-emerald-800 font-semibold">
+                            <span>Standard Daily Net Wage (÷ 26 Days):</span>
+                            <span className="font-mono font-bold">₹{perDay} / day</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Hourly OT Rate (₹/hr)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.hourlyOt}
+                      onChange={(e) =>
+                        setFormData({ ...formData, hourlyOt: Number(e.target.value) || 0 })
+                      }
+                      className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-base font-extrabold text-purple-700 focus:border-blue-600 focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-500 font-medium">Overtime rate per hour</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      PF % [12% / 13%]
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={formData.pfPercent ?? 12}
+                      onChange={(e) =>
+                        setFormData({ ...formData, pfPercent: Number(e.target.value) || 0 })
+                      }
+                      className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      ESI % [e.g. 0.75%]
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.esiPercent ?? 0.75}
+                      onChange={(e) =>
+                        setFormData({ ...formData, esiPercent: Number(e.target.value) || 0 })
+                      }
+                      className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-900"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Monthly Advance / Deduction (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.monthlyAdvance ?? 0}
+                      onChange={(e) =>
+                        setFormData({ ...formData, monthlyAdvance: Number(e.target.value) || 0 })
+                      }
+                      className="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-amber-700"
+                    />
+                  </div>
                 </div>
               </div>
 

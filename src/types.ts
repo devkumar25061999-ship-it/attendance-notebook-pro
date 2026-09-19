@@ -25,6 +25,12 @@ export interface AttendanceRecord {
 export interface AppSettings {
   dailyWage: number;
   hourlyOt: number;
+  monthlyGrossSalary: number;
+  basicSalary?: number;
+  hraAmount?: number;
+  pfPercent: number;
+  esiPercent: number;
+  monthlyAdvance: number;
   companyName: string;
   employeeName: string;
   employeeId: string;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Check, Trash2, Clock, DollarSign, BookOpen, Camera, Calendar } from 'lucide-react';
 import { AttendanceRecord, AttendanceStatus, AppSettings, NoteItem } from '../types';
 import { TOOLS_CONFIG } from '../data/defaultData';
-import { formatDateDisplay } from '../utils/dateUtils';
+import { formatDateDisplay, getMonthlyGross, calculateSalaryBreakdown } from '../utils/dateUtils';
 
 interface DayDetailModalProps {
   isOpen: boolean;
@@ -55,11 +55,13 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Calculate day wage
+  // Calculate day wage from unified salary breakdown
+  const breakdown = calculateSalaryBreakdown(settings, 1, 0, 0);
+  const perDayWage = breakdown.perDayWage;
   let basePay = 0;
-  if (status === 'work') basePay = settings.dailyWage;
-  else if (status === 'half_duty') basePay = settings.dailyWage / 2;
-  else if (status === 'overtime') basePay = settings.dailyWage;
+  if (status === 'work') basePay = perDayWage;
+  else if (status === 'half_duty') basePay = perDayWage / 2;
+  else if (status === 'overtime') basePay = perDayWage;
 
   const otPay = overtimeHours * settings.hourlyOt;
   const totalDayPay = basePay + otPay;
