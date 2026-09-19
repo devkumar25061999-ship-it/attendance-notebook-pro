@@ -532,8 +532,46 @@ export const FactoryHRView: React.FC<FactoryHRViewProps> = ({ defaultHourlyOt, l
   };
 
   const printHtmlContent = (html: string, title: string = 'Print Preview') => {
-    setPrintModalTitle(title);
-    setPrintModalHtml(html);
+    // 1. Check Android Native Print Bridge
+    if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.printHtml) {
+      try {
+        (window as any).AndroidNativePrint.printHtml(html);
+        return;
+      } catch (err) {
+        console.warn('AndroidNativePrint.printHtml failed:', err);
+      }
+    }
+
+    // 2. Direct Blob URL or window.open for instant Print / Save as PDF dialog
+    try {
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+          }, 300);
+        };
+        return;
+      }
+    } catch (e) {
+      console.warn('Blob print failed:', e);
+    }
+
+    // 3. Fallback standard window.open
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 300);
+    } else {
+      alert('Please allow popups to print / save PDF.');
+    }
   };
 
   const handlePrintDailyMusterSheet = () => {
