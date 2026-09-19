@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share2, X, Check, Copy, MessageSquare, CalendarCheck2, Clock, Camera, FileSpreadsheet, BookOpen } from 'lucide-react';
+import { Share2, X, Check, Copy, MessageSquare, CalendarCheck2, Clock, Camera, BookOpen } from 'lucide-react';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 
@@ -104,12 +104,12 @@ export const ReferModal: React.FC<ReferModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in duration-150">
-      <div className="bg-[#141b29] text-white rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] flex flex-col shadow-2xl border border-emerald-500/30 overflow-hidden">
-        {/* Top Header - Compact */}
-        <div className="bg-[#0f5132] px-3.5 py-2.5 flex items-center justify-between border-b border-emerald-600/50 shrink-0">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 animate-in fade-in duration-150">
+      <div className="bg-white text-[#1F2937] rounded-2xl w-full max-w-sm sm:max-w-md max-h-[90vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden">
+        {/* Top Header */}
+        <div className="bg-[#1F2937] px-3.5 py-2.5 flex items-center justify-between border-b border-gray-700 shrink-0 text-white">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-white text-emerald-800 flex items-center justify-center font-black shadow-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#16A34A] text-white flex items-center justify-center font-black shadow-xs shrink-0">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
@@ -117,11 +117,11 @@ export const ReferModal: React.FC<ReferModalProps> = ({
                 <h2 className="text-sm font-black tracking-wide text-white leading-tight">
                   Refer to Friend
                 </h2>
-                <span className="bg-emerald-700 text-emerald-100 text-[9px] font-bold px-1.5 py-0.2 rounded-full">
+                <span className="bg-[#16A34A] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">
                   Share
                 </span>
               </div>
-              <p className="text-[10px] text-emerald-100/90 font-medium leading-tight">
+              <p className="text-[10px] text-gray-300 font-medium leading-tight">
                 Daily attendance & salary calculator app
               </p>
             </div>
@@ -129,62 +129,62 @@ export const ReferModal: React.FC<ReferModalProps> = ({
 
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-emerald-800/80 hover:bg-emerald-700 flex items-center justify-center text-white transition-colors"
+            className="w-7 h-7 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center text-gray-200 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Modal Body - Compact */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[#141b29]">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-0.5">
+        {/* Modal Body */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-white">
+          <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-0.5">
             Key Features:
           </div>
 
-          {/* Feature Highlights - Compact tight cards */}
+          {/* Feature Highlights */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
-              <CalendarCheck2 className="w-4 h-4 text-cyan-400 shrink-0" />
+            <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2 flex items-center gap-2">
+              <CalendarCheck2 className="w-4 h-4 text-[#16A34A] shrink-0" />
               <div className="min-w-0">
-                <h4 className="text-xs font-bold text-white truncate">1-Tap Attendance</h4>
-                <p className="text-[10px] text-slate-300 truncate">Work, Half Duty, Leave</p>
+                <h4 className="text-xs font-bold text-[#1F2937] truncate">1-Tap Attendance</h4>
+                <p className="text-[10px] text-gray-500 truncate">Work, Half Duty, Leave</p>
               </div>
             </div>
 
-            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+            <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#16A34A] shrink-0" />
               <div className="min-w-0">
-                <h4 className="text-xs font-bold text-white truncate">Salary & OT</h4>
-                <p className="text-[10px] text-slate-300 truncate">Daily wage + Overtime</p>
+                <h4 className="text-xs font-bold text-[#1F2937] truncate">Salary & OT</h4>
+                <p className="text-[10px] text-gray-500 truncate">Daily wage + Overtime</p>
               </div>
             </div>
 
-            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
-              <Camera className="w-4 h-4 text-purple-400 shrink-0" />
+            <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-[#16A34A] shrink-0" />
               <div className="min-w-0">
-                <h4 className="text-xs font-bold text-white truncate">Face Punch</h4>
-                <p className="text-[10px] text-slate-300 truncate">Selfie photo log</p>
+                <h4 className="text-xs font-bold text-[#1F2937] truncate">Face Punch</h4>
+                <p className="text-[10px] text-gray-500 truncate">Selfie photo log</p>
               </div>
             </div>
 
-            <div className="bg-[#1f293d] border border-slate-700/60 rounded-xl p-2 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-teal-400 shrink-0" />
+            <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-[#16A34A] shrink-0" />
               <div className="min-w-0">
-                <h4 className="text-xs font-bold text-white truncate">Work Diary / Khata</h4>
-                <p className="text-[10px] text-slate-300 truncate">Notes & advance ledger</p>
+                <h4 className="text-xs font-bold text-[#1F2937] truncate">Work Diary / Khata</h4>
+                <p className="text-[10px] text-gray-500 truncate">Notes & advance ledger</p>
               </div>
             </div>
           </div>
 
-          {/* Message Preview Box - Compact */}
+          {/* Message Preview Box */}
           <div className="space-y-1 pt-1">
             <div className="flex items-center justify-between text-[11px] px-0.5">
-              <span className="font-bold text-slate-300">
+              <span className="font-bold text-[#1F2937]">
                 Message Preview:
               </span>
               <button
                 onClick={handleCopy}
-                className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-semibold text-[11px]"
+                className="text-[#16A34A] hover:text-green-700 flex items-center gap-1 font-semibold text-[11px]"
               >
                 {copied ? (
                   <>
@@ -200,27 +200,27 @@ export const ReferModal: React.FC<ReferModalProps> = ({
               </button>
             </div>
 
-            <div className="bg-[#0c1018] border border-slate-800 rounded-xl p-2 text-[11px] text-slate-300 font-mono line-clamp-2 leading-tight">
+            <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2 text-[11px] text-[#1F2937] font-mono line-clamp-2 leading-tight">
               {shareText}
             </div>
           </div>
         </div>
 
-        {/* Action Buttons - Compact */}
-        <div className="p-3 bg-[#0f141f] border-t border-slate-800 space-y-1.5 shrink-0">
+        {/* Action Buttons */}
+        <div className="p-3 bg-[#F3F4F6] border-t border-gray-200 space-y-1.5 shrink-0">
           {/* WhatsApp button */}
           <button
             onClick={handleWhatsApp}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#16A34A] hover:bg-green-700 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-[0.98]"
           >
-            <MessageSquare className="w-4 h-4 fill-slate-950" />
+            <MessageSquare className="w-4 h-4 fill-white" />
             <span>Share via WhatsApp</span>
           </button>
 
           {/* All apps button */}
           <button
             onClick={handleNativeShare}
-            className="w-full py-2.5 px-3 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.98]"
+            className="w-full py-2.5 px-3 rounded-xl bg-[#1F2937] hover:bg-gray-800 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-[0.98]"
           >
             <Share2 className="w-4 h-4" />
             <span>Share via All Apps (Telegram / SMS / More)</span>
@@ -229,9 +229,9 @@ export const ReferModal: React.FC<ReferModalProps> = ({
           {/* Copy button */}
           <button
             onClick={handleCopy}
-            className="w-full py-2 px-3 rounded-xl bg-[#283247] hover:bg-[#323e59] text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
+            className="w-full py-2 px-3 rounded-xl bg-white hover:bg-gray-100 border border-gray-300 text-[#1F2937] font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-[#16A34A]" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'Link & Message Copied!' : 'Copy Link & Message'}</span>
           </button>
         </div>

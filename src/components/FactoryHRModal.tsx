@@ -7,6 +7,8 @@ export interface Worker {
   phone: string;
   role: string;
   monthlyGross: number;      // Fixed Monthly Gross Salary
+  basicSalary?: number;      // Monthly Basic Salary (e.g. 15000)
+  hraAmount?: number;        // House Rent Allowance (e.g. 5000, or Gross - Basic)
   totalDaysInMonth: number;  // e.g., 26 or 30 days
   presentDays: number;       // Days worked in month
   overtimeHours: number;     // Overtime hours
@@ -195,45 +197,45 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-3 backdrop-blur-xs">
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[92vh] overflow-hidden">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-slate-900 text-white border-b border-slate-800 shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#F3F4F6] text-[#1F2937] border-b border-gray-200 shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-[#16A34A] text-white flex items-center justify-center font-black text-sm shadow-xs">
               📊
             </div>
             <div>
-              <h2 className="text-sm font-black tracking-tight">Factory HR Monthly Salary & PF/ESI Portal</h2>
-              <p className="text-[10px] text-slate-300 font-bold">Gross Salary • PF (12%/13%) • ESI • OT • Advance</p>
+              <h2 className="text-sm font-black tracking-tight text-[#1F2937]">Factory HR Monthly Salary & PF/ESI Portal</h2>
+              <p className="text-[10px] text-gray-500 font-bold">Gross Salary • PF (12%/13%) • ESI • OT • Advance</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-all"
+            className="w-8 h-8 rounded-xl bg-white hover:bg-gray-100 text-[#1F2937] border border-gray-300 flex items-center justify-center transition-all"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 bg-slate-100 p-1 border-b border-slate-200 shrink-0 text-xs font-bold">
+        <div className="grid grid-cols-3 bg-[#F3F4F6] p-1 border-b border-gray-200 shrink-0 text-xs font-bold">
           <button
             onClick={() => { setActiveTab('list'); setSelectedWorker(null); }}
-            className={`py-2 rounded-xl transition-all ${activeTab === 'list' && !selectedWorker ? 'bg-white text-blue-700 font-black shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`py-2 rounded-xl transition-all ${activeTab === 'list' && !selectedWorker ? 'bg-[#16A34A] text-white font-black shadow-xs' : 'text-[#1F2937] hover:text-black'}`}
           >
             Workers List ({workers.length})
           </button>
           <button
             onClick={() => setActiveTab('add')}
-            className={`py-2 rounded-xl transition-all ${activeTab === 'add' ? 'bg-white text-blue-700 font-black shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`py-2 rounded-xl transition-all ${activeTab === 'add' ? 'bg-[#16A34A] text-white font-black shadow-xs' : 'text-[#1F2937] hover:text-black'}`}
           >
             + Add Worker
           </button>
           <button
             onClick={() => { setActiveTab('payroll'); setSelectedWorker(null); }}
-            className={`py-2 rounded-xl transition-all ${activeTab === 'payroll' ? 'bg-white text-blue-700 font-black shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+            className={`py-2 rounded-xl transition-all ${activeTab === 'payroll' ? 'bg-[#16A34A] text-white font-black shadow-xs' : 'text-[#1F2937] hover:text-black'}`}
           >
             Total Payroll
           </button>
@@ -245,22 +247,22 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
           {selectedWorker ? (
             /* WORKER DETAILED MONTHLY CALCULATION & SLIP */
             <div className="space-y-3">
-              <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-gray-200">
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">{selectedWorker.name}</h3>
-                  <p className="text-xs text-slate-500 font-bold">{selectedWorker.role} • 📞 {selectedWorker.phone}</p>
+                  <h3 className="text-sm font-black text-[#1F2937]">{selectedWorker.name}</h3>
+                  <p className="text-xs text-gray-500 font-bold">{selectedWorker.role} • 📞 {selectedWorker.phone}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handlePrintSlip(selectedWorker)}
-                    className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-black shadow-xs"
+                    className="flex items-center gap-1 bg-[#16A34A] hover:bg-green-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-black shadow-xs"
                     title="Print Salary Slip"
                   >
                     <Printer className="w-3.5 h-3.5" /> Print Slip
                   </button>
                   <button
                     onClick={() => setSelectedWorker(null)}
-                    className="text-xs font-bold text-slate-700 bg-white px-2.5 py-1.5 rounded-lg border border-slate-300"
+                    className="text-xs font-bold text-[#1F2937] bg-white px-2.5 py-1.5 rounded-lg border border-gray-300"
                   >
                     ← Back
                   </button>
@@ -268,82 +270,84 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
               </div>
 
               {/* Monthly Salary Parameters Form */}
-              <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
-                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Monthly HR Calculation Parameters</h4>
+              <div className="bg-[#F3F4F6] p-3.5 rounded-xl border border-gray-200 space-y-3">
+                <h4 className="text-xs font-black text-[#1F2937] uppercase tracking-wider">Monthly HR Calculation Parameters</h4>
                 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Monthly Gross Salary (₹)</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">Monthly Gross Salary (₹)</label>
                     <input
                       type="number"
                       value={selectedWorker.monthlyGross}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'monthlyGross', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-black text-slate-900 text-sm"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2.5 font-black text-[#1F2937] text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Total Days in Month</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">Total Days in Month</label>
                     <input
                       type="number"
                       value={selectedWorker.totalDaysInMonth}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'totalDaysInMonth', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-bold text-slate-800"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-bold text-[#1F2937]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Present Days Worked</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">Present Days Worked</label>
                     <input
                       type="number"
                       value={selectedWorker.presentDays}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'presentDays', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-black text-emerald-700"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-black text-[#16A34A]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Overtime Hours</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">Overtime Hours (0.5 = 30 mins)</label>
                     <input
                       type="number"
+                      step="0.5"
+                      min="0"
                       value={selectedWorker.overtimeHours}
-                      onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'overtimeHours', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-black text-purple-700"
+                      onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'overtimeHours', parseFloat(e.target.value) || 0)}
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-black text-[#1F2937]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">OT Rate / Hour (₹)</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">OT Rate / Hour (₹)</label>
                     <input
                       type="number"
                       value={selectedWorker.hourlyOtRate}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'hourlyOtRate', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-bold text-purple-700"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-bold text-[#1F2937]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">PF Deduction (%) [e.g. 12% / 13%]</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">PF Deduction (%) [e.g. 12% / 13%]</label>
                     <input
                       type="number"
                       step="0.1"
                       value={selectedWorker.pfPercent}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'pfPercent', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-black text-rose-700"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-black text-[#DC2626]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">ESI Deduction (%) [e.g. 0.75%]</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">ESI Deduction (%) [e.g. 0.75%]</label>
                     <input
                       type="number"
                       step="0.01"
                       value={selectedWorker.esiPercent}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'esiPercent', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-black text-rose-700"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-black text-[#DC2626]"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Advance Taken / Cash Given (₹)</label>
+                    <label className="block text-[11px] font-bold text-[#1F2937] mb-1">Advance Taken / Cash Given (₹)</label>
                     <input
                       type="number"
                       value={selectedWorker.advanceGiven}
                       onChange={(e) => handleUpdateWorkerStats(selectedWorker.id, 'advanceGiven', Number(e.target.value))}
-                      className="w-full bg-white border border-slate-300 rounded-lg p-2 font-black text-amber-700"
+                      className="w-full bg-white border border-gray-300 rounded-lg p-2 font-black text-[#DC2626]"
                     />
                   </div>
                 </div>
@@ -352,32 +356,32 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
                 {(() => {
                   const s = calculateWorkerSalary(selectedWorker);
                   return (
-                    <div className="bg-slate-900 text-white p-4 rounded-xl space-y-2 text-xs shadow-md">
-                      <div className="flex justify-between text-slate-300">
+                    <div className="bg-[#1F2937] text-white p-4 rounded-xl space-y-2 text-xs shadow-xs">
+                      <div className="flex justify-between text-gray-300">
                         <span>Earned Gross ({selectedWorker.presentDays}/{selectedWorker.totalDaysInMonth} days):</span>
                         <span className="font-bold">₹{s.earnedGross.toLocaleString('en-IN')}</span>
                       </div>
-                      <div className="flex justify-between text-slate-300">
+                      <div className="flex justify-between text-gray-300">
                         <span>Overtime Pay ({selectedWorker.overtimeHours} hrs @ ₹{selectedWorker.hourlyOtRate}/h):</span>
                         <span className="font-bold">₹{s.otAmount.toLocaleString('en-IN')}</span>
                       </div>
-                      <div className="flex justify-between text-emerald-400 font-bold border-t border-slate-800 pt-1">
+                      <div className="flex justify-between text-[#16A34A] font-bold border-t border-gray-700 pt-1">
                         <span>Total Monthly Earnings:</span>
                         <span>₹{s.totalEarnings.toLocaleString('en-IN')}</span>
                       </div>
-                      <div className="flex justify-between text-rose-300">
+                      <div className="flex justify-between text-red-300">
                         <span>PF Deduction ({selectedWorker.pfPercent}%):</span>
                         <span className="font-bold">-₹{s.pfDeduction}</span>
                       </div>
-                      <div className="flex justify-between text-rose-300">
+                      <div className="flex justify-between text-red-300">
                         <span>ESI Deduction ({selectedWorker.esiPercent}%):</span>
                         <span className="font-bold">-₹{s.esiDeduction}</span>
                       </div>
-                      <div className="flex justify-between text-amber-300">
+                      <div className="flex justify-between text-red-300">
                         <span>Advance Deduction:</span>
                         <span className="font-bold">-₹{s.advance}</span>
                       </div>
-                      <div className="flex justify-between text-emerald-400 font-black text-sm border-t border-slate-800 pt-2">
+                      <div className="flex justify-between text-[#16A34A] font-black text-sm border-t border-gray-700 pt-2">
                         <span>Final Net Salary Payable:</span>
                         <span>₹{s.netSalary.toLocaleString('en-IN')}</span>
                       </div>
@@ -387,7 +391,7 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
 
                 <button
                   onClick={() => handleDeleteWorker(selectedWorker.id)}
-                  className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
+                  className="w-full py-2 bg-red-50 hover:bg-red-100 text-[#DC2626] border border-red-200 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Delete Worker Permanently
                 </button>
@@ -396,106 +400,106 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
           ) : activeTab === 'add' ? (
             /* ADD NEW WORKER FORM WITH ALL FIELDS (GROSS, PF, ESI, OT, ADVANCE) */
             <form onSubmit={handleAddWorker} className="space-y-3">
-              <div className="bg-blue-50 p-3 rounded-xl border border-blue-200 text-blue-900 text-xs font-bold">
+              <div className="bg-green-50 p-3 rounded-xl border border-green-200 text-[#1F2937] text-xs font-bold">
                 💡 Naya worker jodne ke liye Monthly Gross Salary, OT Rate, Advance aur PF/ESI percentages enter karein. Data user storage mein surakshit save rahega.
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Worker Full Name *</label>
+                <label className="block text-xs font-bold text-[#1F2937] mb-1">Worker Full Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Ramesh Kumar"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-slate-900 text-xs"
+                  className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#1F2937] text-xs"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Mobile Number</label>
+                <label className="block text-xs font-bold text-[#1F2937] mb-1">Mobile Number</label>
                 <input
                   type="tel"
                   placeholder="10 digit mobile number"
                   value={newPhone}
                   onChange={(e) => setNewPhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-slate-900 text-xs"
+                  className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#1F2937] text-xs"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Role / Designation</label>
+                <label className="block text-xs font-bold text-[#1F2937] mb-1">Role / Designation</label>
                 <input
                   type="text"
                   placeholder="e.g. Supervisor, Operator, Helper"
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-slate-900 text-xs"
+                  className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#1F2937] text-xs"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Monthly Gross (₹) *</label>
+                  <label className="block text-xs font-bold text-[#1F2937] mb-1">Monthly Gross (₹) *</label>
                   <input
                     type="number"
                     required
                     value={newMonthlyGross}
                     onChange={(e) => setNewMonthlyGross(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-black text-slate-900 text-xs"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-black text-[#1F2937] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Present Days / 26</label>
+                  <label className="block text-xs font-bold text-[#1F2937] mb-1">Present Days / 26</label>
                   <input
                     type="number"
                     value={newPresentDays}
                     onChange={(e) => setNewPresentDays(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-emerald-700 text-xs"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#16A34A] text-xs"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">PF % (12% / 13%)</label>
+                  <label className="block text-xs font-bold text-[#1F2937] mb-1">PF % (12% / 13%)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={newPfPercent}
                     onChange={(e) => setNewPfPercent(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-rose-700 text-xs"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#DC2626] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">ESI % (e.g. 0.75%)</label>
+                  <label className="block text-xs font-bold text-[#1F2937] mb-1">ESI % (e.g. 0.75%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={newEsiPercent}
                     onChange={(e) => setNewEsiPercent(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-rose-700 text-xs"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#DC2626] text-xs"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">OT Rate / Hour (₹)</label>
+                  <label className="block text-xs font-bold text-[#1F2937] mb-1">OT Rate / Hour (₹)</label>
                   <input
                     type="number"
                     value={newOtRate}
                     onChange={(e) => setNewOtRate(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-purple-700 text-xs"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#1F2937] text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Initial Advance (₹)</label>
+                  <label className="block text-xs font-bold text-[#1F2937] mb-1">Initial Advance (₹)</label>
                   <input
                     type="number"
                     value={newAdvance}
                     onChange={(e) => setNewAdvance(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 font-bold text-amber-700 text-xs"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 font-bold text-[#DC2626] text-xs"
                   />
                 </div>
               </div>
               <button
                 type="submit"
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[#16A34A] hover:bg-green-700 text-white font-black text-xs rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <UserPlus className="w-4 h-4" /> Save Worker to Storage
               </button>
@@ -503,17 +507,17 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
           ) : activeTab === 'payroll' ? (
             /* TOTAL FACTORY PAYROLL */
             <div className="space-y-3">
-              <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-md space-y-2">
-                <div className="text-xs text-slate-300 font-bold">Total Active Manpower: <span className="text-white font-black">{workers.length} Workers</span></div>
-                <div className="text-xs text-slate-300 font-bold">Total Factory Net Payout:</div>
-                <div className="text-2xl font-black text-emerald-400">₹{totalFactoryPayroll.toLocaleString('en-IN')}</div>
-                <p className="text-[10px] text-slate-400">Monthly Gross salary after PF, ESI, OT & Advance deductions.</p>
+              <div className="bg-[#1F2937] text-white p-4 rounded-2xl shadow-xs space-y-2">
+                <div className="text-xs text-gray-300 font-bold">Total Active Manpower: <span className="text-white font-black">{workers.length} Workers</span></div>
+                <div className="text-xs text-gray-300 font-bold">Total Factory Net Payout:</div>
+                <div className="text-2xl font-black text-[#16A34A]">₹{totalFactoryPayroll.toLocaleString('en-IN')}</div>
+                <p className="text-[10px] text-gray-400">Monthly Gross salary after PF, ESI, OT & Advance deductions.</p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-xs font-black text-slate-800 uppercase">Worker Wise Net Salary</h4>
+                <h4 className="text-xs font-black text-[#1F2937] uppercase">Worker Wise Net Salary</h4>
                 {workers.length === 0 ? (
-                  <div className="text-center py-6 text-slate-400 text-xs font-bold">No workers added yet.</div>
+                  <div className="text-center py-6 text-gray-400 text-xs font-bold">No workers added yet.</div>
                 ) : (
                   workers.map((w) => {
                     const s = calculateWorkerSalary(w);
@@ -521,15 +525,15 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
                       <div
                         key={w.id}
                         onClick={() => setSelectedWorker(w)}
-                        className="bg-slate-50 hover:bg-blue-50/50 p-3 rounded-xl border border-slate-200 flex items-center justify-between cursor-pointer transition-all"
+                        className="bg-white hover:bg-gray-50 p-3 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer transition-all shadow-2xs"
                       >
                         <div>
-                          <div className="font-black text-slate-900">{w.name}</div>
-                          <div className="text-[10px] text-slate-500 font-bold">{w.role} • Gross: ₹{w.monthlyGross}</div>
+                          <div className="font-black text-[#1F2937]">{w.name}</div>
+                          <div className="text-[10px] text-gray-500 font-bold">{w.role} • Gross: ₹{w.monthlyGross}</div>
                         </div>
                         <div className="text-right">
-                          <div className="font-black text-emerald-700">₹{s.netSalary.toLocaleString('en-IN')}</div>
-                          <div className="text-[9px] text-slate-500 font-bold">PF: {w.pfPercent}% | ESI: {w.esiPercent}%</div>
+                          <div className="font-black text-[#16A34A]">₹{s.netSalary.toLocaleString('en-IN')}</div>
+                          <div className="text-[9px] text-gray-500 font-bold">PF: {w.pfPercent}% | ESI: {w.esiPercent}%</div>
                         </div>
                       </div>
                     );
@@ -541,11 +545,11 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
             /* WORKERS LIST */
             <div className="space-y-2">
               {workers.length === 0 ? (
-                <div className="text-center py-12 text-slate-400 text-xs font-bold space-y-2">
+                <div className="text-center py-12 text-gray-400 text-xs font-bold space-y-2">
                   <p>Koi worker add nahi kiya gaya hai.</p>
                   <button
                     onClick={() => setActiveTab('add')}
-                    className="px-4 py-2 bg-blue-600 text-white font-black rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-[#16A34A] text-white font-black rounded-xl shadow-xs"
                   >
                     + Add First Worker Now
                   </button>
@@ -557,23 +561,23 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
                     <div
                       key={w.id}
                       onClick={() => setSelectedWorker(w)}
-                      className="bg-slate-50 hover:bg-blue-50/50 p-3 rounded-xl border border-slate-200 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99]"
+                      className="bg-white hover:bg-gray-50 p-3 rounded-xl border border-gray-200 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99] shadow-2xs"
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
+                        <div className="w-9 h-9 rounded-xl bg-green-50 text-[#16A34A] border border-green-200 flex items-center justify-center font-black text-xs shadow-xs">
                           {w.name.charAt(0)}
                         </div>
                         <div>
-                          <h4 className="text-xs font-black text-slate-900">{w.name}</h4>
-                          <p className="text-[10px] text-slate-500 font-bold">{w.role} • Gross: ₹{w.monthlyGross}/mo</p>
+                          <h4 className="text-xs font-black text-[#1F2937]">{w.name}</h4>
+                          <p className="text-[10px] text-gray-500 font-bold">{w.role} • Gross: ₹{w.monthlyGross}/mo</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="text-right">
-                          <span className="text-xs font-black text-emerald-700">₹{s.netSalary.toLocaleString('en-IN')}</span>
-                          <span className="block text-[9px] text-slate-400 font-bold">Net Payable</span>
+                          <span className="text-xs font-black text-[#16A34A]">₹{s.netSalary.toLocaleString('en-IN')}</span>
+                          <span className="block text-[9px] text-gray-400 font-bold">Net Payable</span>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-gray-400" />
                       </div>
                     </div>
                   );
@@ -585,11 +589,11 @@ export const FactoryHRModal: React.FC<FactoryHRModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 bg-slate-50 border-t border-slate-200 text-center shrink-0 flex items-center justify-between">
-          <span className="text-[10px] text-slate-500 font-bold">💾 Storage: Saved Locally (Delete on Demand)</span>
+        <div className="p-3 bg-[#F3F4F6] border-t border-gray-200 text-center shrink-0 flex items-center justify-between">
+          <span className="text-[10px] text-gray-500 font-bold">💾 Storage: Saved Locally (Delete on Demand)</span>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow-md transition-all"
+            className="px-4 py-2 bg-[#1F2937] hover:bg-gray-800 text-white font-black text-xs rounded-xl shadow-xs transition-all"
           >
             Close Portal
           </button>

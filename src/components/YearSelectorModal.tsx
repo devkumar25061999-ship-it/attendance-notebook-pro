@@ -24,20 +24,20 @@ export const YearSelectorModal: React.FC<YearSelectorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-[#fffdfa] rounded-3xl w-full max-w-sm max-h-[85vh] flex flex-col shadow-2xl border border-amber-200 overflow-hidden">
+      <div className="bg-white rounded-3xl w-full max-w-sm max-h-[85vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-amber-100">
-          <h2 className="text-xl font-black text-slate-900">Select Year</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-700 bg-[#1F2937] text-white">
+          <h2 className="text-xl font-black text-white">Select Year</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors"
+            className="w-8 h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center text-gray-200 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Year List */}
-        <div className="overflow-y-auto divide-y divide-amber-100/70 px-2 py-1 flex-1">
+        <div className="overflow-y-auto divide-y divide-gray-200 px-2 py-1 flex-1 bg-white">
           {years.map((year) => {
             const isCurrent = year === selectedYear;
             return (
@@ -49,16 +49,16 @@ export const YearSelectorModal: React.FC<YearSelectorModalProps> = ({
                 }}
                 className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors rounded-xl ${
                   isCurrent
-                    ? 'bg-amber-100/60 text-slate-950 font-black'
-                    : 'hover:bg-amber-50/70 text-slate-800 font-bold'
+                    ? 'bg-green-50 text-[#1F2937] font-black'
+                    : 'hover:bg-gray-50 text-[#1F2937] font-bold'
                 }`}
               >
                 <span className="text-lg tracking-wide">{year}</span>
                 <div
                   className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                     isCurrent
-                      ? 'border-slate-900 bg-slate-900 text-white'
-                      : 'border-slate-400 bg-transparent'
+                      ? 'border-[#16A34A] bg-[#16A34A] text-white'
+                      : 'border-gray-300 bg-transparent'
                   }`}
                 >
                   {isCurrent && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -69,10 +69,10 @@ export const YearSelectorModal: React.FC<YearSelectorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-amber-100 bg-amber-50/50 flex justify-center">
+        <div className="p-3 border-t border-gray-200 bg-[#F3F4F6] flex justify-center">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 transition-all active:scale-95"
+            className="px-6 py-2 bg-[#16A34A] hover:bg-green-700 text-white font-bold rounded-xl text-sm transition-all active:scale-95 shadow-xs"
           >
             Done
           </button>

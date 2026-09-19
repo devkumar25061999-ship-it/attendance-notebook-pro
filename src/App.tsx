@@ -12,11 +12,9 @@ import { ReferModal } from './components/ReferModal';
 import { HowToUseModal } from './components/HowToUseModal';
 import { NotebookModal } from './components/NotebookModal';
 import { DayDetailModal } from './components/DayDetailModal';
-import { FacePunchModal } from './components/FacePunchModal';
 import { ReportModal } from './components/ReportModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { FactoryHRModal } from './components/FactoryHRModal';
-import { FactoryHRQuickBar } from './components/FactoryHRQuickBar';
 import { FactoryHRView } from './components/FactoryHRView';
 import { getCalendarGrid, CalendarDay, getMonthlyGross, calculateSalaryBreakdown } from './utils/dateUtils';
 import {
@@ -32,6 +30,7 @@ import { INITIAL_ATTENDANCE, INITIAL_NOTES, DEMO_ATTENDANCE, DEMO_NOTES } from '
 import { exportAndSaveFile } from './utils/fileExport';
 import { scheduleDailyReminders } from './utils/notifications';
 import { initializeAdMob, showInterstitialAd } from './utils/admob';
+import { Language } from './utils/translations';
 
 export default function App() {
   // App state
@@ -39,6 +38,17 @@ export default function App() {
   const [monthIndex, setMonthIndex] = useState<number>(8); // September (0-indexed: 8 is Sep)
   const [selectedDate, setSelectedDate] = useState<string>('2026-09-18');
   const [selectedTool, setSelectedTool] = useState<AttendanceStatus>('work');
+  const [lang, setLang] = useState<Language>(() => {
+    return (localStorage.getItem('app_user_language') as Language) || 'hi';
+  });
+
+  const handleToggleLanguage = () => {
+    setLang((prev) => {
+      const nextLang = prev === 'hi' ? 'en' : 'hi';
+      localStorage.setItem('app_user_language', nextLang);
+      return nextLang;
+    });
+  };
 
   // Stored Data
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
@@ -54,9 +64,9 @@ export default function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isManageDataModalOpen, setIsManageDataModalOpen] = useState(false);
   const [isDayDetailModalOpen, setIsDayDetailModalOpen] = useState(false);
-  const [isFacePunchModalOpen, setIsFacePunchModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [isFactoryHRModalOpen, setIsFactoryHRModalOpen] = useState(false);
+
   const [appMode, setAppMode] = useState<'self' | 'hr'>('self');
   const [workersCount, setWorkersCount] = useState<number>(() => {
     try {
@@ -153,11 +163,15 @@ export default function App() {
     }
   };
 
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }, []);
+
   const handleResetToCurrentMonth = () => {
     const now = new Date();
     setYear(now.getFullYear());
     setMonthIndex(now.getMonth());
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     setSelectedDate(todayStr);
   };
 
@@ -242,6 +256,56 @@ export default function App() {
     });
   };
 
+  const handleQuickDutyMark = (status: AttendanceStatus, otHours = 0, shiftNote = '') => {
+    setRecords((prev) => ({
+      ...prev,
+      [selectedDate]: {
+        ...(prev[selectedDate] || {
+          date: selectedDate,
+          status: 'work',
+          inTime: settings.shiftStart,
+          outTime: settings.shiftEnd,
+          overtimeHours: 0,
+        }),
+        status,
+        overtimeHours: otHours > 0 ? otHours : (status === 'overtime' ? (prev[selectedDate]?.overtimeHours || 2) : 0),
+        note: shiftNote
+          ? `${prev[selectedDate]?.note ? prev[selectedDate]?.note + ' | ' : ''}${shiftNote}`
+          : prev[selectedDate]?.note,
+        updatedAt: Date.now(),
+      },
+    }));
+  };
+
+  const handleQuickDutyClear = () => {
+    handleDeleteDayRecord(selectedDate);
+  };
+
+  const handleFillWorkingDays = () => {
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    setRecords((prev) => {
+      const updated = { ...prev };
+      for (let day = 1; day <= daysInMonth; day++) {
+        const d = new Date(year, monthIndex, day);
+        // If not Sunday (0 is Sunday)
+        if (d.getDay() !== 0) {
+          const dateStr = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          if (!updated[dateStr]) {
+            updated[dateStr] = {
+              date: dateStr,
+              status: 'work',
+              inTime: settings.shiftStart,
+              outTime: settings.shiftEnd,
+              overtimeHours: 0,
+              updatedAt: Date.now(),
+            };
+          }
+        }
+      }
+      return updated;
+    });
+  };
+
   // Notebook handlers
   const handleAddNote = (newNoteData: Omit<NoteItem, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newNote: NoteItem = {
@@ -270,27 +334,6 @@ export default function App() {
       setMonthIndex(m - 1);
       setSelectedDate(dateString);
     }
-  };
-
-  // Face punch handler
-  const handleFacePunchSuccess = (photoDataUrl: string, punchTime: string) => {
-    setRecords((prev) => ({
-      ...prev,
-      [selectedDate]: {
-        ...(prev[selectedDate] || {
-          date: selectedDate,
-          status: 'work',
-          inTime: punchTime,
-          outTime: settings.shiftEnd,
-          overtimeHours: 0,
-        }),
-        status: 'work',
-        punchPhoto: photoDataUrl,
-        punchTime,
-        inTime: punchTime,
-        updatedAt: Date.now(),
-      },
-    }));
   };
 
   // Data management handlers
@@ -351,11 +394,13 @@ export default function App() {
   };
 
   return (
-    <div className="w-full h-full h-[100dvh] max-h-[100dvh] flex flex-col bg-[#f8fafc] font-sans overflow-hidden select-none overscroll-none">
+    <div className="w-full h-full h-[100dvh] max-h-[100dvh] flex flex-col bg-[#F3F4F6] text-[#1F2937] font-sans overflow-hidden select-none overscroll-none">
       {/* Top Header - Fixed & Pinned */}
-      <div className="shrink-0 z-30 shadow-md">
+      <div className="shrink-0 z-30 shadow-xs">
         <Header
           year={year}
+          lang={lang}
+          onToggleLang={handleToggleLanguage}
           onOpenYearModal={() => setIsYearModalOpen(true)}
           onOpenGuideModal={() => setIsGuideModalOpen(true)}
           onOpenReportModal={() => {
@@ -372,39 +417,39 @@ export default function App() {
       </div>
 
       {/* App Mode Switcher Bar */}
-      <div className="bg-slate-900 px-3 py-2 flex items-center justify-between border-b border-slate-800 shrink-0 shadow-inner">
-        <div className="text-xs font-black text-white flex items-center gap-1.5">
-          <span>Mode:</span>
+      <div className="bg-white px-3 py-1.5 flex items-center justify-between border-b border-gray-200 shrink-0 shadow-xs">
+        <div className="text-xs font-black text-[#1F2937] flex items-center gap-1.5">
+          <span>{lang === 'hi' ? 'मोड:' : 'Mode:'}</span>
         </div>
-        <div className="flex bg-slate-800 p-1 rounded-xl gap-1">
+        <div className="flex bg-[#F3F4F6] p-1 rounded-xl gap-1 border border-gray-200">
           <button
             onClick={() => setAppMode('self')}
             className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
               appMode === 'self'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#16A34A] text-white shadow-xs'
+                : 'text-[#1F2937] hover:text-black'
             }`}
           >
-            👤 Self Attendance
+            {lang === 'hi' ? '👤 व्यक्तिगत हाजिरी' : '👤 Self Attendance'}
           </button>
           <button
             onClick={() => setAppMode('hr')}
             className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
               appMode === 'hr'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#16A34A] text-white shadow-xs'
+                : 'text-[#1F2937] hover:text-black'
             }`}
           >
-            🏭 Factory HR Mode
+            {lang === 'hi' ? '🏭 फैक्ट्री HR मोड' : '🏭 Factory HR Mode'}
           </button>
         </div>
       </div>
 
       {/* Main Screen Content */}
-      <main className="flex-1 w-full max-w-md mx-auto flex flex-col justify-between px-2 sm:px-3 py-1 overflow-hidden">
+      <main className="flex-1 w-full max-w-md mx-auto flex flex-col justify-between px-2 sm:px-3 py-1 overflow-y-auto">
         {appMode === 'hr' ? (
           <div className="flex-1 flex flex-col my-1 overflow-hidden">
-            <FactoryHRView defaultHourlyOt={settings.hourlyOt} />
+            <FactoryHRView defaultHourlyOt={settings.hourlyOt} lang={lang} />
           </div>
         ) : (
           <>
@@ -412,6 +457,7 @@ export default function App() {
         <MonthNavigation
           currentMonthIndex={monthIndex}
           year={year}
+          lang={lang}
           onPrevMonth={handlePrevMonth}
           onNextMonth={handleNextMonth}
           onSelectCurrentMonth={handleResetToCurrentMonth}
@@ -424,29 +470,28 @@ export default function App() {
           overtimeHours={currentMonthStats.overtimeHours}
           totalEarnings={currentMonthStats.totalEarnings}
           dailyWage={calculateSalaryBreakdown(settings, 0, 0, 0).perDayWage}
+          lang={lang}
           onViewSalaryDetails={() => setIsReportModalOpen(true)}
         />
 
-        {/* Action Row: Face Punch, Work Diary, Salary Slip & Print */}
+        {/* Action Row: Work Diary, Salary Slip & Print */}
         <ActionButtonsRow
-          onOpenFacePunch={() => setIsFacePunchModalOpen(true)}
           onOpenGuide={() => setIsGuideModalOpen(true)}
           onOpenSettings={() => setIsSettingsModalOpen(true)}
           onOpenNotebook={() => setIsNotebookModalOpen(true)}
           onOpenReport={() => setIsReportModalOpen(true)}
-          facePunchEnabled={settings.facePunchEnabled}
-          punchPhoto={records[selectedDate]?.punchPhoto}
-          punchTime={records[selectedDate]?.punchTime || records[selectedDate]?.inTime}
+          lang={lang}
         />
 
         {/* Calendar Grid 7-column SUN-SAT with badges and note indicators */}
-        <div className="flex-1 min-h-0 flex flex-col justify-center my-0.5">
+        <div className="w-full my-1 shrink-0">
           <CalendarGrid
             days={calendarDays}
             records={records}
             notesByDate={notesByDate}
             selectedDate={selectedDate}
             selectedTool={selectedTool}
+            lang={lang}
             onDayClick={handleDayClick}
             onOpenDayDetails={(dateStr) => {
               setSelectedDate(dateStr);
@@ -458,6 +503,7 @@ export default function App() {
         {/* 8-status Tool Selector Toolbar */}
         <ToolSelector
           selectedTool={selectedTool}
+          lang={lang}
           onSelectTool={(tool) => {
             setSelectedTool(tool);
             if (tool === 'note') {
@@ -471,33 +517,33 @@ export default function App() {
         )}
 
         {/* Quick Footer Links: Refer to Friend • Privacy Policy • How to Use */}
-        <footer className="w-full shrink-0 pt-1 pb-0.5 px-2 flex items-center justify-center gap-3 text-[10.5px] font-semibold text-slate-500 border-t border-slate-200/80 mt-0.5">
+        <footer className="w-full shrink-0 pt-1 pb-0.5 px-2 flex items-center justify-center gap-3 text-[10.5px] font-semibold text-[#1F2937] border-t border-gray-300 mt-0.5">
           <button
             id="btn-footer-refer"
             onClick={() => setIsReferModalOpen(true)}
-            className="text-emerald-700 hover:text-emerald-900 font-black flex items-center gap-1 active:scale-95 transition-transform"
+            className="text-[#16A34A] hover:text-green-800 font-black flex items-center gap-1 active:scale-95 transition-transform"
             title="Refer App to Friends & Coworkers"
           >
             <span>🎁</span>
-            <span>Refer to Friend</span>
+            <span>{lang === 'hi' ? 'मित्र को भेजें' : 'Refer to Friend'}</span>
           </button>
-          <span className="text-slate-300">•</span>
+          <span className="text-gray-300">•</span>
           <button
             id="btn-footer-privacy"
             onClick={() => setIsPrivacyModalOpen(true)}
-            className="text-slate-600 hover:text-slate-900 font-bold active:scale-95 transition-transform"
+            className="text-[#1F2937] hover:text-black font-bold active:scale-95 transition-transform"
             title="Privacy Policy & Offline Data Security"
           >
-            Privacy Policy
+            {lang === 'hi' ? 'गोपनीयता नीति' : 'Privacy Policy'}
           </button>
-          <span className="text-slate-300">•</span>
+          <span className="text-gray-300">•</span>
           <button
             id="btn-footer-guide"
             onClick={() => setIsGuideModalOpen(true)}
-            className="text-indigo-600 hover:text-indigo-900 font-bold active:scale-95 transition-transform"
+            className="text-[#1F2937] hover:text-black font-bold active:scale-95 transition-transform"
             title="How to Use App Guide"
           >
-            How to Use
+            {lang === 'hi' ? 'उपयोग विधि' : 'How to Use'}
           </button>
         </footer>
       </main>
@@ -565,10 +611,6 @@ export default function App() {
         notesForDate={notesByDate[selectedDate] || []}
         onSaveRecord={handleSaveDayRecord}
         onDeleteRecord={handleDeleteDayRecord}
-        onOpenFacePunch={() => {
-          setIsDayDetailModalOpen(false);
-          setIsFacePunchModalOpen(true);
-        }}
         onAddNoteFromDay={(dateStr, noteTitle, noteContent) => {
           handleAddNote({
             title: noteTitle,
@@ -578,14 +620,6 @@ export default function App() {
             isPinned: false,
           });
         }}
-      />
-
-      <FacePunchModal
-        isOpen={isFacePunchModalOpen}
-        onClose={() => setIsFacePunchModalOpen(false)}
-        selectedDate={selectedDate}
-        existingPhoto={records[selectedDate]?.punchPhoto}
-        onPunchSuccess={handleFacePunchSuccess}
       />
 
       <ReportModal

@@ -600,17 +600,17 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-150">
-      <div className="bg-[#fffdfa] rounded-3xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl border-2 border-slate-900 overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-150">
+      <div className="bg-white rounded-3xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 bg-gradient-to-r from-slate-950 via-indigo-950 to-purple-950 text-white border-b border-slate-800 shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 bg-[#1F2937] text-white border-b border-gray-700 shrink-0">
           <div className="flex items-center gap-2.5">
-            <BarChart3 className="w-5 h-5 text-amber-400" />
+            <BarChart3 className="w-5 h-5 text-[#16A34A]" />
             <div>
               <h2 className="text-sm sm:text-base font-black text-white leading-tight">
                 {monthName} {year} • Salary Slip & Report
               </h2>
-              <p className="text-[10px] text-amber-300 font-semibold">
+              <p className="text-[10px] text-gray-300 font-semibold">
                 {settings.employeeName} ({settings.employeeId})
               </p>
             </div>
@@ -618,13 +618,13 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
           <div className="flex items-center gap-1.5">
             {/* View Switcher Tabs: Monthly, Yearly, Paper Slip */}
-            <div className="flex bg-slate-900/80 p-0.5 rounded-xl border border-slate-700 text-xs font-black">
+            <div className="flex bg-gray-800 p-0.5 rounded-xl border border-gray-700 text-xs font-black">
               <button
                 onClick={() => setActiveTab('monthly')}
                 className={`px-2 py-1 rounded-lg transition-all ${
                   activeTab === 'monthly'
-                    ? 'bg-amber-400 text-slate-950 shadow-xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-[#16A34A] text-white shadow-xs'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
                 Monthly
@@ -633,8 +633,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 onClick={() => setActiveTab('yearly')}
                 className={`px-2 py-1 rounded-lg transition-all ${
                   activeTab === 'yearly'
-                    ? 'bg-amber-400 text-slate-950 shadow-xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-[#16A34A] text-white shadow-xs'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
                 Yearly ({year})
@@ -643,8 +643,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 onClick={() => setActiveTab('slip')}
                 className={`px-2 py-1 rounded-lg transition-all flex items-center gap-1 ${
                   activeTab === 'slip'
-                    ? 'bg-amber-400 text-slate-950 shadow-xs'
-                    : 'text-slate-300 hover:text-white'
+                    ? 'bg-[#16A34A] text-white shadow-xs'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
                 <Eye className="w-3 h-3" />
@@ -654,7 +654,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
             <button
               onClick={onClose}
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-colors ml-1"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center text-gray-200 transition-colors ml-1"
             >
               <X className="w-4 h-4" />
             </button>
@@ -663,11 +663,11 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
         {/* Print Status Toast Message */}
         {printStatus && (
-          <div className="bg-amber-100 border-b border-amber-300 text-amber-950 px-4 py-2 text-xs font-bold flex items-center justify-between animate-in slide-in-from-top-2">
+          <div className="bg-green-50 border-b border-green-200 text-[#16A34A] px-4 py-2 text-xs font-bold flex items-center justify-between animate-in slide-in-from-top-2">
             <span>{printStatus}</span>
             <button
               onClick={() => setPrintStatus(null)}
-              className="text-amber-800 hover:text-amber-950 text-xs ml-2 font-black"
+              className="text-green-800 hover:text-green-950 text-xs ml-2 font-black"
             >
               ✕
             </button>
@@ -680,25 +680,25 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             /* Monthly Summary View */
             <div className="space-y-4">
               {/* Employee & Company Header Banner */}
-              <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 text-white rounded-2xl p-3.5 sm:p-4 shadow-sm border border-slate-800">
+              <div className="bg-[#1F2937] text-white rounded-2xl p-3.5 sm:p-4 shadow-sm border border-gray-700">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] uppercase font-extrabold text-amber-400 tracking-wider">
+                    <span className="text-[10px] uppercase font-extrabold text-[#16A34A] tracking-wider">
                       Company & Employee
                     </span>
                     <h3 className="text-base sm:text-lg font-black text-white">
                       {settings.companyName || 'ATTENDANCE NOTEBOOK PRO'}
                     </h3>
-                    <p className="text-xs text-slate-300 font-medium">
+                    <p className="text-xs text-gray-300 font-medium">
                       Dept: {settings.department || 'Operations'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-400 font-medium">Period:</span>
-                    <div className="text-xs sm:text-sm font-black text-amber-300">
+                    <span className="text-[10px] text-gray-400 font-medium">Period:</span>
+                    <div className="text-xs sm:text-sm font-black text-white">
                       {monthName} {year}
                     </div>
-                    <div className="text-[10px] text-slate-400">
+                    <div className="text-[10px] text-gray-400">
                       Daily: ₹{perDayWage} | OT: ₹{settings.hourlyOt}/h
                     </div>
                   </div>
@@ -706,22 +706,22 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               </div>
 
               {/* Salary Total Highlight Box */}
-              <div className="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-4 shadow-sm space-y-3">
-                <div className="flex items-center justify-between border-b border-emerald-200 pb-2.5">
+              <div className="bg-white border-2 border-[#16A34A] rounded-2xl p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2.5">
                   <div>
-                    <span className="text-xs font-extrabold text-emerald-950 uppercase tracking-wide">
+                    <span className="text-xs font-extrabold text-[#1F2937] uppercase tracking-wide">
                       Total Net Salary:
                     </span>
-                    <div className="text-[11px] text-emerald-700 font-semibold">
+                    <div className="text-[11px] text-[#16A34A] font-semibold">
                       Basic + HRA + OT - PF/ESI - Advance
                     </div>
                   </div>
-                  <span className="text-2xl sm:text-3xl font-black text-emerald-900 font-mono">
+                  <span className="text-2xl sm:text-3xl font-black text-[#16A34A] font-mono">
                     ₹{totalNetSalary.toLocaleString('en-IN')}
                   </span>
                 </div>
 
-                <div className="space-y-1.5 text-xs text-emerald-950">
+                <div className="space-y-1.5 text-xs text-[#1F2937]">
                   <div className="flex items-center justify-between">
                     <span>
                       Basic Duty Wages ({dutyDays} days × ₹{basicPerDay}):
@@ -732,7 +732,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   </div>
 
                   {monthlyHra > 0 && (
-                    <div className="flex items-center justify-between text-blue-900">
+                    <div className="flex items-center justify-between text-[#1F2937]">
                       <span>
                         House Rent Allowance (HRA) ({dutyDays} days × ₹{hraPerDay}):
                       </span>
@@ -746,12 +746,12 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                     <span>
                       Overtime ({totalOtHours} hrs × ₹{settings.hourlyOt}/hr):
                     </span>
-                    <span className="font-bold text-emerald-700">
+                    <span className="font-bold text-[#16A34A]">
                       + ₹{otSalary.toLocaleString('en-IN')}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-red-700 pt-1 border-t border-emerald-200/60">
+                  <div className="flex items-center justify-between text-[#DC2626] pt-1 border-t border-gray-200">
                     <span>
                       PF ({settings.pfPercent ?? 12}%) &amp; ESI ({settings.esiPercent ?? 0.75}%) on Basic:
                     </span>
@@ -761,7 +761,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   </div>
 
                   {advanceDeduction > 0 && (
-                    <div className="flex items-center justify-between text-red-700">
+                    <div className="flex items-center justify-between text-[#DC2626]">
                       <span>
                         Advance / Loan Deductions:
                       </span>
@@ -775,38 +775,38 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
               {/* Duty Statistics Matrix */}
               <div>
-                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-black text-[#1F2937] uppercase tracking-wider mb-2">
                   Monthly Duty Count:
                 </h4>
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="bg-blue-50 border border-blue-200 p-2.5 rounded-2xl">
-                    <div className="text-xl font-black text-blue-900">{workDays}</div>
-                    <div className="text-[10px] text-blue-700 font-bold">Work Days</div>
+                  <div className="bg-[#F3F4F6] border border-gray-200 p-2.5 rounded-2xl">
+                    <div className="text-xl font-black text-[#1F2937]">{workDays}</div>
+                    <div className="text-[10px] text-gray-600 font-bold">Work Days</div>
                   </div>
 
-                  <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-2xl">
-                    <div className="text-xl font-black text-emerald-900">{totalOtHours}h</div>
-                    <div className="text-[10px] text-emerald-700 font-bold">Total OT</div>
+                  <div className="bg-green-50 border border-green-200 p-2.5 rounded-2xl">
+                    <div className="text-xl font-black text-[#16A34A]">{totalOtHours}h</div>
+                    <div className="text-[10px] text-[#16A34A] font-bold">Total OT</div>
                   </div>
 
-                  <div className="bg-purple-50 border border-purple-200 p-2.5 rounded-2xl">
-                    <div className="text-xl font-black text-purple-900">{halfDays}</div>
-                    <div className="text-[10px] text-purple-700 font-bold">Half Days</div>
+                  <div className="bg-[#F3F4F6] border border-gray-200 p-2.5 rounded-2xl">
+                    <div className="text-xl font-black text-[#1F2937]">{halfDays}</div>
+                    <div className="text-[10px] text-gray-600 font-bold">Half Days</div>
                   </div>
 
-                  <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-2xl">
-                    <div className="text-xl font-black text-amber-900">{holidays}</div>
-                    <div className="text-[10px] text-amber-700 font-bold">Holidays</div>
+                  <div className="bg-[#F3F4F6] border border-gray-200 p-2.5 rounded-2xl">
+                    <div className="text-xl font-black text-[#1F2937]">{holidays}</div>
+                    <div className="text-[10px] text-gray-600 font-bold">Holidays</div>
                   </div>
 
-                  <div className="bg-rose-50 border border-rose-200 p-2.5 rounded-2xl">
-                    <div className="text-xl font-black text-rose-900">{sickDays}</div>
-                    <div className="text-[10px] text-rose-700 font-bold">Sick Leaves</div>
+                  <div className="bg-red-50 border border-red-200 p-2.5 rounded-2xl">
+                    <div className="text-xl font-black text-[#DC2626]">{sickDays}</div>
+                    <div className="text-[10px] text-[#DC2626] font-bold">Sick Leaves</div>
                   </div>
 
-                  <div className="bg-cyan-50 border border-cyan-200 p-2.5 rounded-2xl">
-                    <div className="text-xl font-black text-cyan-900">{vacationDays + emergencyDays}</div>
-                    <div className="text-[10px] text-cyan-700 font-bold">Other Leaves</div>
+                  <div className="bg-[#F3F4F6] border border-gray-200 p-2.5 rounded-2xl">
+                    <div className="text-xl font-black text-[#1F2937]">{vacationDays + emergencyDays}</div>
+                    <div className="text-[10px] text-gray-600 font-bold">Other Leaves</div>
                   </div>
                 </div>
               </div>
@@ -815,7 +815,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
               <div className="flex items-center gap-2 pt-1">
                 <button
                   onClick={handleShareWhatsApp}
-                  className="flex-1 py-2 px-3 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-2xs"
+                  className="flex-1 py-2 px-3 bg-[#16A34A] hover:bg-green-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-2xs"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   <span>Share on WhatsApp</span>
@@ -823,9 +823,9 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
                 <button
                   onClick={handleCopySummary}
-                  className="py-2 px-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                  className="py-2 px-3 bg-gray-100 hover:bg-gray-200 text-[#1F2937] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 border border-gray-200"
                 >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? <Check className="w-3.5 h-3.5 text-[#16A34A]" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? 'Copied!' : 'Copy'}</span>
                 </button>
               </div>
@@ -834,21 +834,21 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             /* Yearly Summary View (Jan to Dec Ledger & YoY Comparison) */
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Top Yearly Summary Card */}
-              <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 shadow-md border-2 border-amber-400/40">
+              <div className="bg-[#1F2937] text-white rounded-2xl p-4 shadow-md border border-gray-700">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
+                    <span className="text-[10px] font-black uppercase text-[#16A34A] tracking-wider">
                       Yearly Total Earnings ({year})
                     </span>
-                    <div className="text-2xl sm:text-3xl font-black text-amber-300 font-mono mt-0.5">
+                    <div className="text-2xl sm:text-3xl font-black text-white font-mono mt-0.5">
                       ₹{yearlyTotalNetSalary.toLocaleString('en-IN')}
                     </div>
                   </div>
                   {earningsGrowthPct && (
                     <div className={`px-2.5 py-1 rounded-xl text-xs font-black flex items-center gap-1 border ${
                       earningsDiffWithPrevYear >= 0
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        ? 'bg-green-500/20 text-green-300 border-green-500/40'
+                        : 'bg-red-500/20 text-red-300 border-red-500/40'
                     }`}>
                       <span>{earningsDiffWithPrevYear >= 0 ? '↑' : '↓'}</span>
                       <span>{earningsGrowthPct}% vs {year - 1}</span>
@@ -856,27 +856,27 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-800">
-                  <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
-                    <div className="text-lg font-black text-blue-300">{yearlyTotalDutyDays}</div>
-                    <div className="text-[9px] text-slate-400 font-bold">Duty Days</div>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-gray-700">
+                  <div className="bg-gray-800/80 p-2 rounded-xl border border-gray-700">
+                    <div className="text-lg font-black text-white">{yearlyTotalDutyDays}</div>
+                    <div className="text-[9px] text-gray-300 font-bold">Duty Days</div>
                   </div>
-                  <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
-                    <div className="text-lg font-black text-emerald-300">{yearlyTotalOtHours}h</div>
-                    <div className="text-[9px] text-slate-400 font-bold">OT Hours</div>
+                  <div className="bg-gray-800/80 p-2 rounded-xl border border-gray-700">
+                    <div className="text-lg font-black text-[#16A34A]">{yearlyTotalOtHours}h</div>
+                    <div className="text-[9px] text-gray-300 font-bold">OT Hours</div>
                   </div>
-                  <div className="bg-slate-900/60 p-2 rounded-xl border border-slate-800">
-                    <div className="text-lg font-black text-rose-300">{yearlyTotalLeaves}</div>
-                    <div className="text-[9px] text-slate-400 font-bold">Leaves</div>
+                  <div className="bg-gray-800/80 p-2 rounded-xl border border-gray-700">
+                    <div className="text-lg font-black text-[#DC2626]">{yearlyTotalLeaves}</div>
+                    <div className="text-[9px] text-gray-300 font-bold">Leaves</div>
                   </div>
                 </div>
               </div>
 
               {/* 12 Months Ledger Grid */}
               <div>
-                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <h4 className="text-xs font-black text-[#1F2937] uppercase tracking-wider mb-2 flex items-center justify-between">
                   <span>January - December ({year}) Ledger:</span>
-                  <span className="text-[10px] text-slate-500 font-normal">12 Months Summary</span>
+                  <span className="text-[10px] text-gray-500 font-normal">12 Months Summary</span>
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -885,22 +885,22 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                       key={m.monthIndex}
                       className={`p-3 rounded-2xl border transition-all ${
                         m.monthIndex === monthIndex
-                          ? 'bg-amber-50/80 border-amber-400 ring-2 ring-amber-300/60'
+                          ? 'bg-green-50 border-[#16A34A] ring-2 ring-green-200'
                           : m.totalEarnings > 0
-                          ? 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                          : 'bg-slate-50/60 border-slate-200 text-slate-400'
+                          ? 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs'
+                          : 'bg-[#F3F4F6] border-gray-200 text-gray-400'
                       }`}
                     >
                       <div className="flex justify-between items-center mb-1.5">
-                        <span className="font-extrabold text-xs text-slate-900">
+                        <span className="font-extrabold text-xs text-[#1F2937]">
                           {m.monthName} {year}
                         </span>
-                        <span className="font-black text-sm text-emerald-700 font-mono">
+                        <span className="font-black text-sm text-[#16A34A] font-mono">
                           ₹{m.totalEarnings.toLocaleString('en-IN')}
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between text-[10.5px] text-slate-600 font-medium">
+                      <div className="flex items-center justify-between text-[10.5px] text-gray-600 font-medium">
                         <span>Duty: <strong>{m.workDays}d</strong> {m.halfDays > 0 ? `(${m.halfDays} half)` : ''}</span>
                         <span>OT: <strong>{m.overtimeHours}h</strong></span>
                         <span>Leaves: <strong>{m.leaves}d</strong></span>
@@ -913,23 +913,23 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           ) : (
             /* Paper Slip View - Clean & Compact */
             <div className="space-y-3 animate-in fade-in duration-150">
-              <div className="bg-white border-2 border-slate-900 rounded-2xl p-3.5 sm:p-4 shadow-sm text-slate-900 text-xs font-sans">
+              <div className="bg-white border border-gray-300 rounded-2xl p-3.5 sm:p-4 shadow-sm text-[#1F2937] text-xs font-sans">
                 {/* Paper Header */}
-                <div className="border-b-2 border-slate-900 pb-2.5 mb-2.5 flex justify-between items-start">
+                <div className="border-b-2 border-gray-800 pb-2.5 mb-2.5 flex justify-between items-start">
                   <div>
-                    <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase leading-tight">
+                    <h3 className="text-sm sm:text-base font-black text-[#1F2937] uppercase leading-tight">
                       {settings.companyName || 'ATTENDANCE NOTEBOOK PRO'}
                     </h3>
-                    <p className="text-[10px] text-slate-600">Department: {settings.department || 'Operations'}</p>
+                    <p className="text-[10px] text-gray-600">Department: {settings.department || 'Operations'}</p>
                   </div>
-                  <div className="bg-slate-950 text-white px-2 py-0.5 rounded text-right">
-                    <div className="text-[8px] font-bold tracking-wide">SALARY SLIP</div>
-                    <div className="text-[11px] font-black text-amber-300">{monthName.toUpperCase()} {year}</div>
+                  <div className="bg-[#1F2937] text-white px-2 py-0.5 rounded text-right">
+                    <div className="text-[8px] font-bold tracking-wide text-gray-300">SALARY SLIP</div>
+                    <div className="text-[11px] font-black text-white">{monthName.toUpperCase()} {year}</div>
                   </div>
                 </div>
 
                 {/* Employee Info Box */}
-                <div className="grid grid-cols-2 gap-2 bg-slate-50 border border-slate-300 p-2 rounded-xl mb-2.5 text-[10px]">
+                <div className="grid grid-cols-2 gap-2 bg-[#F3F4F6] border border-gray-200 p-2 rounded-xl mb-2.5 text-[10px]">
                   <div>
                     <div><strong>Name:</strong> {settings.employeeName}</div>
                     <div><strong>ID:</strong> {settings.employeeId}</div>
@@ -941,14 +941,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 </div>
 
                 {/* Table Summary */}
-                <div className="border border-slate-300 rounded-xl mb-2.5 overflow-hidden text-[10px]">
-                  <div className="grid grid-cols-4 bg-slate-100 font-bold p-1 border-b border-slate-300 text-center">
+                <div className="border border-gray-200 rounded-xl mb-2.5 overflow-hidden text-[10px]">
+                  <div className="grid grid-cols-4 bg-[#F3F4F6] font-bold p-1 border-b border-gray-200 text-center text-[#1F2937]">
                     <div>Work Days</div>
                     <div>Half Days</div>
                     <div>OT Hours</div>
                     <div>Leaves</div>
                   </div>
-                  <div className="grid grid-cols-4 p-1 text-center font-black">
+                  <div className="grid grid-cols-4 p-1 text-center font-black bg-white">
                     <div>{workDays}</div>
                     <div>{halfDays}</div>
                     <div>{totalOtHours}h</div>
@@ -957,29 +957,29 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 </div>
 
                 {/* Earnings & Deductions Breakdown */}
-                <div className="bg-slate-50 border border-slate-300 rounded-xl p-2 mb-2.5 space-y-1 text-[10px]">
+                <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2 mb-2.5 space-y-1 text-[10px]">
                   <div className="flex justify-between">
                     <span>Basic Wages ({dutyDays} days @ ₹{basicPerDay}):</span>
                     <span className="font-bold">₹{earnedBasic.toLocaleString('en-IN')}</span>
                   </div>
                   {monthlyHra > 0 && (
-                    <div className="flex justify-between text-blue-900">
+                    <div className="flex justify-between text-[#1F2937]">
                       <span>HRA ({dutyDays} days @ ₹{hraPerDay}):</span>
                       <span className="font-bold">+ ₹{earnedHra.toLocaleString('en-IN')}</span>
                     </div>
                   )}
                   {otSalary > 0 && (
-                    <div className="flex justify-between text-emerald-800">
+                    <div className="flex justify-between text-[#16A34A]">
                       <span>Overtime ({totalOtHours}h @ ₹{settings.hourlyOt}/h):</span>
                       <span className="font-bold">+ ₹{otSalary.toLocaleString('en-IN')}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-red-700 border-t border-slate-200 pt-0.5">
+                  <div className="flex justify-between text-[#DC2626] border-t border-gray-200 pt-0.5">
                     <span>PF ({settings.pfPercent ?? 12}%) + ESI ({settings.esiPercent ?? 0.75}%) on Basic:</span>
                     <span className="font-bold">- ₹{(pfDeduction + esiDeduction).toLocaleString('en-IN')}</span>
                   </div>
                   {advanceDeduction > 0 && (
-                    <div className="flex justify-between text-red-700">
+                    <div className="flex justify-between text-[#DC2626]">
                       <span>Advance Deduction:</span>
                       <span className="font-bold">- ₹{advanceDeduction.toLocaleString('en-IN')}</span>
                     </div>
@@ -987,21 +987,21 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 </div>
 
                 {/* Net Payable Box */}
-                <div className="bg-emerald-50 border-2 border-emerald-600 p-2 rounded-xl mb-3 flex justify-between items-center">
+                <div className="bg-white border-2 border-[#16A34A] p-2 rounded-xl mb-3 flex justify-between items-center">
                   <div>
-                    <div className="text-xs font-black text-emerald-950">TOTAL NET PAYABLE:</div>
-                    <div className="text-[9px] text-emerald-700">Wage + Overtime Total</div>
+                    <div className="text-xs font-black text-[#1F2937]">TOTAL NET PAYABLE:</div>
+                    <div className="text-[9px] text-[#16A34A]">Wage + Overtime Total</div>
                   </div>
-                  <div className="text-lg font-black text-emerald-950 font-mono">
+                  <div className="text-lg font-black text-[#16A34A] font-mono">
                     ₹{totalNetSalary.toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 {/* Signatures */}
-                <div className="grid grid-cols-3 gap-2 text-center text-[9px] mt-4 pt-2 border-t border-dashed border-slate-400">
-                  <div className="border-t border-slate-700 pt-0.5 font-bold">Supervisor</div>
-                  <div className="border-t border-slate-700 pt-0.5 font-bold">Employee</div>
-                  <div className="border-t border-slate-700 pt-0.5 font-bold">Authorized Sign</div>
+                <div className="grid grid-cols-3 gap-2 text-center text-[9px] mt-4 pt-2 border-t border-dashed border-gray-300">
+                  <div className="border-t border-gray-400 pt-0.5 font-bold">Supervisor</div>
+                  <div className="border-t border-gray-400 pt-0.5 font-bold">Employee</div>
+                  <div className="border-t border-gray-400 pt-0.5 font-bold">Authorized Sign</div>
                 </div>
               </div>
             </div>
@@ -1009,10 +1009,10 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-2.5 sm:p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-center shrink-0">
+        <div className="p-2.5 sm:p-3 bg-[#F3F4F6] border-t border-gray-200 flex items-center justify-center shrink-0">
           <button
             onClick={handlePrint}
-            className="w-full py-2.5 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-98 text-slate-950 font-black text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all border border-amber-400"
+            className="w-full py-2.5 px-5 bg-[#16A34A] hover:bg-green-700 active:scale-98 text-white font-black text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all"
             title="Print Salary Slip directly"
           >
             <Printer className="w-4 h-4 stroke-[2.5] shrink-0" />
@@ -1023,32 +1023,32 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
       {/* Print & PDF Options Modal Dialog */}
       {showPrintModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-3 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-4 sm:p-5 shadow-2xl border-2 border-indigo-950 space-y-3.5 text-slate-900 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b pb-2.5">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-4 sm:p-5 shadow-2xl border border-gray-200 space-y-3.5 text-[#1F2937] animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-2.5">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-900 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-green-50 text-[#16A34A] flex items-center justify-center font-bold">
                   <Printer className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-black text-slate-950">
+                  <h3 className="text-sm sm:text-base font-black text-[#1F2937]">
                     Print / Save Salary Slip
                   </h3>
-                  <p className="text-[11px] text-slate-500 font-bold">
+                  <p className="text-[11px] text-gray-500 font-bold">
                     {monthName} {year}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowPrintModal(false)}
-                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-black"
+                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-black"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Clear explanation of why iframe may suppress dialog */}
-            <div className="bg-amber-50 border border-amber-300 rounded-xl p-2.5 text-xs text-amber-950 flex items-start gap-2">
+            <div className="bg-[#F3F4F6] border border-gray-200 rounded-xl p-2.5 text-xs text-[#1F2937] flex items-start gap-2">
               <span className="text-sm shrink-0">💡</span>
               <span className="leading-snug">
                 Browser preview mein direct print dialog block ho sakta hai. Niche diye gaye <strong>"Open in New Tab"</strong> ya <strong>"Save / Download File"</strong> se 100% print ho jayega:
@@ -1062,20 +1062,20 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   setShowPrintModal(false);
                   handleOpenInNewTab();
                 }}
-                className="w-full text-left p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold active:scale-98 transition-all flex items-center justify-between gap-2 shadow-sm"
+                className="w-full text-left p-3 rounded-2xl bg-[#1F2937] hover:bg-gray-800 text-white font-bold active:scale-98 transition-all flex items-center justify-between gap-2 shadow-sm"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
                     <ExternalLink className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs sm:text-sm font-black truncate">1. Open in New Tab (Best)</div>
-                    <div className="text-[10px] text-blue-100 font-normal truncate">
+                    <div className="text-[10px] text-gray-300 font-normal truncate">
                       Full page khulega aur print dialog turant aayega
                     </div>
                   </div>
                 </div>
-                <span className="text-[11px] bg-white text-blue-900 font-black px-2 py-0.5 rounded-full shrink-0">
+                <span className="text-[11px] bg-white text-[#1F2937] font-black px-2 py-0.5 rounded-full shrink-0">
                   Print
                 </span>
               </button>
@@ -1086,7 +1086,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   setShowPrintModal(false);
                   handleDownloadSlipHtml();
                 }}
-                className="w-full text-left p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold active:scale-98 transition-all flex items-center justify-between gap-2 shadow-sm"
+                className="w-full text-left p-3 rounded-2xl bg-[#16A34A] hover:bg-green-700 text-white font-bold active:scale-98 transition-all flex items-center justify-between gap-2 shadow-sm"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
@@ -1094,12 +1094,12 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs sm:text-sm font-black truncate">2. Download Slip (Save PDF)</div>
-                    <div className="text-[10px] text-emerald-100 font-normal truncate">
+                    <div className="text-[10px] text-green-100 font-normal truncate">
                       A4 Slip file download karein, kabhi bhi print karein
                     </div>
                   </div>
                 </div>
-                <span className="text-[11px] bg-white text-emerald-900 font-black px-2 py-0.5 rounded-full shrink-0">
+                <span className="text-[11px] bg-white text-[#16A34A] font-black px-2 py-0.5 rounded-full shrink-0">
                   Download
                 </span>
               </button>
@@ -1110,20 +1110,20 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   setShowPrintModal(false);
                   handleShareWhatsApp();
                 }}
-                className="w-full text-left p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold active:scale-98 transition-all flex items-center justify-between gap-2"
+                className="w-full text-left p-2.5 rounded-2xl bg-[#F3F4F6] hover:bg-gray-200 text-[#1F2937] font-bold active:scale-98 transition-all flex items-center justify-between gap-2 border border-gray-200"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-xl bg-[#16A34A] text-white flex items-center justify-center shrink-0">
                     <Share2 className="w-3.5 h-3.5" />
                   </div>
                   <div className="min-w-0">
                     <div className="text-xs font-black truncate">3. WhatsApp Par Bhejein</div>
-                    <div className="text-[10px] text-slate-500 font-normal truncate">
+                    <div className="text-[10px] text-gray-500 font-normal truncate">
                       Employee ya contractor ko salary details send karein
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full shrink-0">
+                <span className="text-[10px] bg-green-100 text-[#16A34A] font-bold px-2 py-0.5 rounded-full shrink-0">
                   Share
                 </span>
               </button>
@@ -1131,7 +1131,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
             <button
               onClick={() => setShowPrintModal(false)}
-              className="w-full py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs text-center transition-all"
+              className="w-full py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-[#1F2937] font-bold text-xs text-center transition-all border border-gray-200"
             >
               Close
             </button>

@@ -7,6 +7,7 @@ export type AttendanceStatus =
   | 'sick'
   | 'emergency'
   | 'note'
+  | 'absent'
   | 'clear';
 
 export interface AttendanceRecord {
@@ -37,7 +38,6 @@ export interface AppSettings {
   department: string;
   shiftStart: string;
   shiftEnd: string;
-  facePunchEnabled: boolean;
   autoSaveNoteToDiary: boolean;
 }
 

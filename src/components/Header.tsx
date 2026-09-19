@@ -1,8 +1,11 @@
 import React from 'react';
-import { BarChart3, BookOpen, Settings, ChevronDown, Share2, Users } from 'lucide-react';
+import { BarChart3, BookOpen, Settings, ChevronDown, Share2, Users, Languages } from 'lucide-react';
+import { Language, translations } from '../utils/translations';
 
 interface HeaderProps {
   year: number;
+  lang: Language;
+  onToggleLang: () => void;
   onOpenYearModal: () => void;
   onOpenGuideModal: () => void;
   onOpenReportModal: () => void;
@@ -16,6 +19,8 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   year,
+  lang,
+  onToggleLang,
   onOpenYearModal,
   onOpenReportModal,
   onOpenNotebookModal,
@@ -24,89 +29,72 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenFactoryHRModal,
   notesCount,
 }) => {
+  const t = translations[lang];
+
   return (
-    <header className="bg-slate-900 text-white px-3 sm:px-4 pt-[max(env(safe-area-inset-top),14px)] pb-3 shadow-md border-b border-slate-800 sticky top-0 z-30">
-      <div className="w-full max-w-md mx-auto flex items-center justify-between gap-2">
+    <header className="bg-[#1F2937] text-white px-2.5 sm:px-4 pt-[max(env(safe-area-inset-top),14px)] pb-2.5 shadow-sm border-b border-gray-700 sticky top-0 z-30">
+      <div className="w-full max-w-md mx-auto flex items-center justify-between gap-1.5">
         {/* Left: Year Picker & App Title */}
         <div className="flex items-center gap-1.5 min-w-0">
           <button
             id="btn-year-selector"
             onClick={onOpenYearModal}
-            className="flex items-center gap-0.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2 py-1 rounded-lg border border-amber-400 text-xs tracking-wide shadow-2xs transition-all active:scale-95 shrink-0"
-            title="Change Year"
+            className="flex items-center gap-0.5 bg-white hover:bg-gray-100 text-[#1F2937] font-black px-2 py-1 rounded-lg border border-gray-300 text-xs tracking-wide shadow-2xs transition-all active:scale-95 shrink-0"
+            title={t.changeYear}
           >
             <span>{year}</span>
-            <ChevronDown className="w-3 h-3 stroke-[3] text-slate-950 shrink-0" />
+            <ChevronDown className="w-3 h-3 stroke-[3] text-[#1F2937] shrink-0" />
           </button>
 
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-1 leading-tight">
               <span className="font-black text-xs sm:text-sm tracking-tight text-white truncate">
-                Attendance Pro
+                {t.appName}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-[8.5px] text-amber-300 font-bold leading-none mt-0.5 truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-              <span className="truncate">Duty • Salary • Diary</span>
+            <div className="flex items-center gap-1 text-[8.5px] text-gray-300 font-bold leading-none mt-0.5 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-pulse shrink-0"></span>
+              <span className="truncate">{t.appSubtitle}</span>
             </div>
           </div>
         </div>
 
-        {/* Right: Quick Action Buttons (Slip, Notebook, Refer, Settings) */}
+        {/* Right: Quick Action Buttons + Language Switcher */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* 1. Reports / Salary Slip */}
+          {/* Language Switcher Pill */}
           <button
-            id="btn-open-report"
-            onClick={onOpenReportModal}
-            className="w-7.5 h-7.5 xs:w-8 xs:h-8 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 flex items-center justify-center text-xs font-bold transition-all active:scale-95 shrink-0 shadow-2xs"
-            title="Salary Slip & Monthly Reports"
+            id="btn-header-lang-toggle"
+            onClick={onToggleLang}
+            className="h-7.5 px-2 rounded-lg bg-white hover:bg-gray-100 text-[#1F2937] font-black border border-gray-300 flex items-center gap-1 text-[11px] shadow-xs active:scale-95 transition-all shrink-0"
+            title="Switch Language / भाषा बदलें"
           >
-            <BarChart3 className="w-4 h-4 text-emerald-300 shrink-0" />
+            <Languages className="w-3.5 h-3.5 shrink-0 text-[#1F2937]" />
+            <span className="leading-none">{lang === 'hi' ? 'ENG' : 'हिंदी'}</span>
           </button>
 
           {/* 2. Notebook / Diary */}
           <button
             id="btn-open-notebook-header"
             onClick={onOpenNotebookModal}
-            className="w-7.5 h-7.5 xs:w-8 xs:h-8 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 flex items-center justify-center transition-all active:scale-95 relative shrink-0 shadow-2xs"
+            className="w-7.5 h-7.5 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 flex items-center justify-center transition-all active:scale-95 relative shrink-0 shadow-2xs"
             title="Notebook & Daily Diary"
           >
-            <BookOpen className="w-4 h-4 text-cyan-300" />
+            <BookOpen className="w-4 h-4 text-white" />
             {notesCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-cyan-400 to-teal-400 text-slate-950 text-[8.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-slate-950 shadow-2xs">
+              <span className="absolute -top-1 -right-1 bg-[#16A34A] text-white text-[8.5px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-[#1F2937] shadow-2xs">
                 {notesCount > 9 ? '9+' : notesCount}
               </span>
             )}
-          </button>
-
-          {/* 3. Refer / Share */}
-          <button
-            id="btn-header-refer"
-            onClick={onOpenReferModal}
-            className="w-7.5 h-7.5 xs:w-8 xs:h-8 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-2xs"
-            title="Refer to Friend & Share App"
-          >
-            <Share2 className="w-3.5 h-3.5 text-amber-300" />
-          </button>
-
-          {/* Factory HR & Workers */}
-          <button
-            id="btn-open-factory-hr"
-            onClick={onOpenFactoryHRModal}
-            className="w-7.5 h-7.5 xs:w-8 xs:h-8 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-2xs"
-            title="Factory HR & Workers Manpower Portal"
-          >
-            <Users className="w-4 h-4 text-blue-300" />
           </button>
 
           {/* 4. Settings */}
           <button
             id="btn-open-settings"
             onClick={onOpenSettingsModal}
-            className="w-7.5 h-7.5 xs:w-8 xs:h-8 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-2xs"
+            className="w-7.5 h-7.5 rounded-lg bg-white/10 hover:bg-white/20 text-white border border-white/20 flex items-center justify-center transition-all active:scale-95 shrink-0 shadow-2xs"
             title="Duty & Salary Settings"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-4 h-4 text-white" />
           </button>
         </div>
       </div>

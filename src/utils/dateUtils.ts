@@ -13,6 +13,24 @@ export const MONTH_NAMES = [
   'December',
 ];
 
+export const MONTH_NAMES_HI = [
+  'जनवरी',
+  'फरवरी',
+  'मार्च',
+  'अप्रैल',
+  'मई',
+  'जून',
+  'जुलाई',
+  'अगस्त',
+  'सितंबर',
+  'अक्टूबर',
+  'नवंबर',
+  'दिसंबर',
+];
+
+export const DAY_NAMES_HI = ['रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+
+
 export interface CalendarDay {
   dateString: string; // YYYY-MM-DD
   dayNumber: number;

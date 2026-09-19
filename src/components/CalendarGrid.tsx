@@ -3,6 +3,8 @@ import { CalendarDay } from '../utils/dateUtils';
 import { AttendanceRecord, AttendanceStatus, NoteItem } from '../types';
 import { TOOLS_CONFIG } from '../data/defaultData';
 import { Calendar, Sparkles, CheckCircle2 } from 'lucide-react';
+import { DAY_NAMES_HI } from '../utils/dateUtils';
+import { Language } from '../utils/translations';
 
 interface CalendarGridProps {
   days: CalendarDay[];
@@ -10,6 +12,7 @@ interface CalendarGridProps {
   notesByDate: Record<string, NoteItem[]>;
   selectedDate: string;
   selectedTool: AttendanceStatus;
+  lang?: Language;
   onDayClick: (day: CalendarDay) => void;
   onOpenDayDetails: (dateString: string) => void;
 }
@@ -20,18 +23,16 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   notesByDate,
   selectedDate,
   selectedTool,
+  lang = 'en',
   onDayClick,
   onOpenDayDetails,
 }) => {
-  const dayNames = [
-    { name: 'SUN', isWeekend: true, bg: 'bg-rose-600 text-white font-black' },
-    { name: 'MON', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
-    { name: 'TUE', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
-    { name: 'WED', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
-    { name: 'THU', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
-    { name: 'FRI', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
-    { name: 'SAT', isWeekend: true, bg: 'bg-amber-500 text-slate-950 font-black' },
-  ];
+  const dayNamesEn = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const dayNames = (lang === 'hi' ? DAY_NAMES_HI : dayNamesEn).map((name, idx) => ({
+    name,
+    isWeekend: idx === 0 || idx === 6,
+    bg: idx === 0 ? 'bg-[#DC2626] text-white font-black' : 'bg-[#1F2937] text-white font-extrabold',
+  }));
 
   const activeToolConfig = TOOLS_CONFIG.find((t) => t.id === selectedTool);
   const isClearToolActive = selectedTool === 'clear';
@@ -61,9 +62,9 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   return (
     <div className="w-full px-1 sm:px-2 max-w-md mx-auto my-0.5 space-y-1">
       {/* Main Calendar Card */}
-      <div className="bg-white rounded-xl overflow-hidden border-2 border-indigo-950 shadow-md ring-1 ring-black/5">
+      <div className="bg-white rounded-xl overflow-hidden border border-gray-300 shadow-xs">
         {/* Header: SUN - SAT with vivid jewel badges */}
-        <div className="grid grid-cols-7 border-b-2 border-indigo-950 text-center text-[10px] sm:text-xs tracking-wider">
+        <div className="grid grid-cols-7 border-b border-gray-300 text-center text-[10px] sm:text-xs tracking-wider">
           {dayNames.map((d) => (
             <div key={d.name} className={`py-1 ${d.bg}`}>
               {d.name}
@@ -72,7 +73,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         </div>
 
         {/* Days 7x5 or 7x6 Matrix */}
-        <div className="grid grid-cols-7 border-collapse bg-slate-100/40">
+        <div className="grid grid-cols-7 border-collapse bg-[#F3F4F6]">
           {days.map((day, idx) => {
             const record = records[day.dateString];
             const hasNotes = Boolean(notesByDate[day.dateString]?.length || record?.note);
@@ -92,21 +93,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   onOpenDayDetails(day.dateString);
                 }}
                 className={`h-[38px] xs:h-[42px] sm:h-[46px] p-0.5 xs:p-1 flex flex-col justify-between relative cursor-pointer select-none transition-all active:scale-95 overflow-hidden ${
-                  !isRightCol ? 'border-r border-slate-200' : ''
-                } ${!isBottomRow ? 'border-b border-slate-200' : ''} ${
+                  !isRightCol ? 'border-r border-gray-200' : ''
+                } ${!isBottomRow ? 'border-b border-gray-200' : ''} ${
                   isSelected
-                    ? 'bg-blue-600 text-white font-black ring-2 ring-blue-400 ring-offset-1 z-20 shadow-md'
+                    ? 'bg-[#16A34A] text-white font-black ring-2 ring-[#16A34A] ring-offset-1 z-20 shadow-xs'
                     : !day.isCurrentMonth
-                    ? 'bg-slate-50/60 text-slate-300'
+                    ? 'bg-gray-100 text-gray-300'
                     : record
-                    ? `${toolConfig?.bgColor || 'bg-blue-50/90'} text-slate-900`
+                    ? `${toolConfig?.bgColor || 'bg-green-50'} text-[#1F2937]`
                     : day.isToday
-                    ? 'bg-amber-100/90 text-slate-950 ring-2 ring-inset ring-amber-400 font-extrabold'
+                    ? 'bg-amber-100 text-[#1F2937] ring-2 ring-inset ring-amber-400 font-extrabold'
                     : day.isSunday
-                    ? 'bg-rose-50/40 text-slate-900 hover:bg-rose-100/50'
+                    ? 'bg-red-50/40 text-[#1F2937] hover:bg-red-100/50'
                     : day.isSaturday
-                    ? 'bg-amber-50/30 text-slate-900 hover:bg-amber-100/40'
-                    : 'bg-white hover:bg-blue-50/40 text-slate-900'
+                    ? 'bg-gray-50 text-[#1F2937] hover:bg-gray-100'
+                    : 'bg-white hover:bg-gray-50 text-[#1F2937]'
                 }`}
               >
                 {/* Top row: Date Number & Badges */}
@@ -117,13 +118,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                         ? 'text-white drop-shadow-xs'
                         : !day.isCurrentMonth
                         ? day.isSunday
-                          ? 'text-rose-300'
-                          : 'text-slate-300'
+                          ? 'text-red-300'
+                          : 'text-gray-300'
                         : day.isSunday
-                        ? 'text-rose-600'
+                        ? 'text-[#DC2626]'
                         : day.isToday
-                        ? 'text-amber-950 font-black'
-                        : 'text-slate-900'
+                        ? 'text-[#1F2937] font-black'
+                        : 'text-[#1F2937]'
                     }`}
                   >
                     {day.dayNumber}
@@ -196,21 +197,21 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
       <div className="flex items-center justify-between gap-2 pt-0.5">
         {/* Active Tool indicator pill */}
         <div
-          className={`flex items-center gap-2 min-w-0 flex-1 border-2 rounded-xl px-3 py-1.5 shadow-xs transition-colors ${
+          className={`flex items-center gap-2 min-w-0 flex-1 border rounded-xl px-3 py-1.5 shadow-xs transition-colors ${
             isClearToolActive
-              ? 'bg-rose-50 border-rose-400 text-rose-950'
-              : 'bg-white border-indigo-200 text-slate-900'
+              ? 'bg-red-50 border-[#DC2626] text-[#DC2626]'
+              : 'bg-white border-gray-300 text-[#1F2937]'
           }`}
         >
           <span className="text-base shrink-0">{activeToolConfig?.icon || '💼'}</span>
           <div className="min-w-0 flex-1 leading-tight">
             <div className="text-[11px] sm:text-xs font-black truncate flex items-center gap-1.5">
-              <span className="text-slate-400 font-bold text-[9px] uppercase tracking-wider">Active:</span>
-              <span className={isClearToolActive ? 'text-rose-700 font-black' : 'text-blue-900 font-black'}>
+              <span className="text-gray-400 font-bold text-[9px] uppercase tracking-wider">Active:</span>
+              <span className={isClearToolActive ? 'text-[#DC2626] font-black' : 'text-[#16A34A] font-black'}>
                 {activeToolConfig?.name || selectedTool}
               </span>
             </div>
-            <div className="text-[10px] text-slate-500 font-medium truncate">
+            <div className="text-[10px] text-gray-500 font-medium truncate">
               {isClearToolActive ? 'Tap date to erase attendance' : 'Tap date on calendar to mark'}
             </div>
           </div>
@@ -221,10 +222,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           id="btn-open-day-details-main"
           type="button"
           onClick={() => onOpenDayDetails(selectedDate)}
-          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs sm:text-sm font-black px-3.5 py-2.5 rounded-xl shadow-md transition-all shrink-0 border border-blue-400"
+          className="flex items-center gap-1.5 bg-[#16A34A] hover:bg-green-700 active:scale-95 text-white text-xs sm:text-sm font-black px-3.5 py-2.5 rounded-xl shadow-xs transition-all shrink-0 border border-green-600"
           title={`View and edit full details for ${selectedDate}`}
         >
-          <Calendar className="w-4 h-4 text-amber-300" />
+          <Calendar className="w-4 h-4 text-white" />
           <span>{selectedDayNum} {monthShort} Details</span>
         </button>
       </div>
