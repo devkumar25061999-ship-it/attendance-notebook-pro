@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Users, UserPlus, Phone, IndianRupee, Trash2, Calendar, FileText, X, Check, CheckCircle, Award, Briefcase, ChevronRight, ChevronLeft, Printer, Percent, Building2, Camera, RefreshCw, Upload, Sparkles, AlertCircle, Clock, Moon, Sun, Zap, CalendarDays } from 'lucide-react';
 import { Worker } from './FactoryHRModal';
 import { Language, translations } from '../utils/translations';
+import { printOrSaveSlip } from '../utils/fileExport';
 
 export interface DailyDutyRecord {
   status: 'P' | 'HD' | 'A';
@@ -531,47 +532,8 @@ export const FactoryHRView: React.FC<FactoryHRViewProps> = ({ defaultHourlyOt, l
     showDailyToast(`✅ ${statusName} सफलतापूर्वक दर्ज हुई!`);
   };
 
-  const printHtmlContent = (html: string, title: string = 'Print Preview') => {
-    // 1. Check Android Native Print Bridge
-    if (typeof window !== 'undefined' && (window as any).AndroidNativePrint?.printHtml) {
-      try {
-        (window as any).AndroidNativePrint.printHtml(html);
-        return;
-      } catch (err) {
-        console.warn('AndroidNativePrint.printHtml failed:', err);
-      }
-    }
-
-    // 2. Direct Blob URL or window.open for instant Print / Save as PDF dialog
-    try {
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const printWindow = window.open(url, '_blank');
-      if (printWindow) {
-        printWindow.onload = () => {
-          setTimeout(() => {
-            printWindow.focus();
-            printWindow.print();
-          }, 300);
-        };
-        return;
-      }
-    } catch (e) {
-      console.warn('Blob print failed:', e);
-    }
-
-    // 3. Fallback standard window.open
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(html);
-      printWindow.document.close();
-      setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-      }, 300);
-    } else {
-      alert('Please allow popups to print / save PDF.');
-    }
+  const printHtmlContent = async (html: string, title: string = 'Document') => {
+    await printOrSaveSlip({ jobName: title, htmlContent: html });
   };
 
   const handlePrintDailyMusterSheet = () => {
