@@ -23,14 +23,14 @@ export const Header: React.FC<HeaderProps> = ({
   notesCount,
 }) => {
   return (
-    <header className="bg-gradient-to-r from-slate-950 via-indigo-950 to-purple-950 text-white px-2.5 sm:px-3 py-1.5 shadow-md border-b border-indigo-900/60 sticky top-0 z-30">
-      <div className="w-full max-w-md mx-auto flex items-center justify-between gap-1.5">
+    <header className="bg-slate-900 text-white px-3 sm:px-4 pt-[max(env(safe-area-inset-top),14px)] pb-3 shadow-md border-b border-slate-800 sticky top-0 z-30">
+      <div className="w-full max-w-md mx-auto flex items-center justify-between gap-2">
         {/* Left: Year Picker & App Title */}
         <div className="flex items-center gap-1.5 min-w-0">
           <button
             id="btn-year-selector"
             onClick={onOpenYearModal}
-            className="flex items-center gap-0.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black px-2 py-1 rounded-lg border border-amber-300 text-xs tracking-wide shadow-2xs transition-all active:scale-95 shrink-0"
+            className="flex items-center gap-0.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-2 py-1 rounded-lg border border-amber-400 text-xs tracking-wide shadow-2xs transition-all active:scale-95 shrink-0"
             title="Change Year"
           >
             <span>{year}</span>

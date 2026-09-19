@@ -24,13 +24,13 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   onOpenDayDetails,
 }) => {
   const dayNames = [
-    { name: 'SUN', isWeekend: true, bg: 'bg-gradient-to-b from-rose-600 to-red-700 text-white font-black' },
-    { name: 'MON', isWeekend: false, bg: 'bg-gradient-to-b from-slate-900 to-indigo-950 text-slate-100 font-extrabold' },
-    { name: 'TUE', isWeekend: false, bg: 'bg-gradient-to-b from-slate-900 to-indigo-950 text-slate-100 font-extrabold' },
-    { name: 'WED', isWeekend: false, bg: 'bg-gradient-to-b from-slate-900 to-indigo-950 text-slate-100 font-extrabold' },
-    { name: 'THU', isWeekend: false, bg: 'bg-gradient-to-b from-slate-900 to-indigo-950 text-slate-100 font-extrabold' },
-    { name: 'FRI', isWeekend: false, bg: 'bg-gradient-to-b from-slate-900 to-indigo-950 text-slate-100 font-extrabold' },
-    { name: 'SAT', isWeekend: true, bg: 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 font-black' },
+    { name: 'SUN', isWeekend: true, bg: 'bg-rose-600 text-white font-black' },
+    { name: 'MON', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
+    { name: 'TUE', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
+    { name: 'WED', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
+    { name: 'THU', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
+    { name: 'FRI', isWeekend: false, bg: 'bg-slate-900 text-slate-100 font-extrabold' },
+    { name: 'SAT', isWeekend: true, bg: 'bg-amber-500 text-slate-950 font-black' },
   ];
 
   const activeToolConfig = TOOLS_CONFIG.find((t) => t.id === selectedTool);
@@ -61,7 +61,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
   return (
     <div className="w-full px-1 sm:px-2 max-w-md mx-auto my-0.5 space-y-1">
       {/* Live Month Duty Progress & Goal Bar */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl py-1 px-2.5 shadow-xs border border-indigo-900/60 flex items-center justify-between text-[10px] gap-2">
+      <div className="bg-slate-900 text-white rounded-xl py-1 px-2.5 shadow-xs border border-slate-800 flex items-center justify-between text-[10px] gap-2">
         <div className="flex items-center gap-1.5 shrink-0">
           <Sparkles className="w-3 h-3 text-amber-400" />
           <span className="font-extrabold text-slate-200">Goal</span>
@@ -73,7 +73,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
         {/* Progress Track */}
         <div className="flex-1 bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/60">
           <div
-            className="bg-gradient-to-r from-blue-500 via-emerald-400 to-amber-400 h-full rounded-full transition-all duration-500 ease-out"
+            className="bg-blue-600 h-full rounded-full transition-all duration-500 ease-out"
             style={{ width: `${dutyPercentage}%` }}
           ></div>
         </div>
@@ -118,7 +118,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   !isRightCol ? 'border-r border-slate-200' : ''
                 } ${!isBottomRow ? 'border-b border-slate-200' : ''} ${
                   isSelected
-                    ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black ring-2 ring-blue-400 ring-offset-1 z-20 shadow-md'
+                    ? 'bg-blue-600 text-white font-black ring-2 ring-blue-400 ring-offset-1 z-20 shadow-md'
                     : !day.isCurrentMonth
                     ? 'bg-slate-50/60 text-slate-300'
                     : record
@@ -204,7 +204,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
                   )}
 
                   {!record && day.isCurrentMonth && day.isToday && !isSelected && (
-                    <div className="text-[8.5px] sm:text-[9px] text-center text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-400 font-black px-1 py-0.5 rounded leading-none shadow-xs">
+                    <div className="text-[8.5px] sm:text-[9px] text-center text-slate-950 bg-amber-400 font-black px-1 py-0.5 rounded leading-none shadow-xs">
                       Today
                     </div>
                   )}
@@ -244,7 +244,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({
           id="btn-open-day-details-main"
           type="button"
           onClick={() => onOpenDayDetails(selectedDate)}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 active:scale-95 text-white text-xs sm:text-sm font-black px-3.5 py-2.5 rounded-xl shadow-md transition-all shrink-0 border border-blue-400"
+          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs sm:text-sm font-black px-3.5 py-2.5 rounded-xl shadow-md transition-all shrink-0 border border-blue-400"
           title={`View and edit full details for ${selectedDate}`}
         >
           <Calendar className="w-4 h-4 text-amber-300" />

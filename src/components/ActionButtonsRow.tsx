@@ -31,8 +31,8 @@ export const ActionButtonsRow: React.FC<ActionButtonsRowProps> = ({
             onClick={onOpenFacePunch}
             className={`font-black p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden border ${
               punchPhoto
-                ? 'bg-gradient-to-br from-purple-700 via-fuchsia-700 to-indigo-900 border-amber-300 text-white shadow-xs'
-                : 'bg-gradient-to-br from-purple-600 via-fuchsia-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 border-purple-300 text-white'
+                ? 'bg-purple-800 border-amber-400 text-white shadow-xs'
+                : 'bg-purple-700 hover:bg-purple-800 border-purple-500 text-white'
             }`}
             title={
               punchPhoto
@@ -67,17 +67,17 @@ export const ActionButtonsRow: React.FC<ActionButtonsRowProps> = ({
           <button
             id="btn-action-face-punch-disabled"
             onClick={onOpenSettings}
-            className="bg-slate-200 text-slate-600 font-bold p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden border border-slate-300"
+            className="bg-slate-200 text-slate-700 font-bold p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden border border-slate-300"
             title="Enable Face Punch in Settings"
           >
             <div className="w-6 h-6 rounded-lg bg-slate-300 flex items-center justify-center shrink-0">
-              <Camera className="w-3.5 h-3.5 text-slate-500" />
+              <Camera className="w-3.5 h-3.5 text-slate-600" />
             </div>
             <div className="flex flex-col text-left leading-tight min-w-0">
-              <span className="text-xs font-black text-slate-700 tracking-tight truncate">
+              <span className="text-xs font-black text-slate-800 tracking-tight truncate">
                 Face Punch
               </span>
-              <span className="text-[9px] text-slate-500 truncate">Settings</span>
+              <span className="text-[9px] text-slate-600 truncate">Settings</span>
             </div>
           </button>
         )}
@@ -86,17 +86,17 @@ export const ActionButtonsRow: React.FC<ActionButtonsRowProps> = ({
         <button
           id="btn-action-notebook"
           onClick={onOpenNotebook}
-          className="bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-700 hover:from-cyan-500 hover:to-teal-600 border border-cyan-300 text-white font-black p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden"
+          className="bg-teal-700 hover:bg-teal-800 border border-teal-500 text-white font-black p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden"
           title="Notebook (Daily Notes, Advances, Site Diary)"
         >
           <div className="w-6 h-6 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
-            <BookOpen className="w-3.5 h-3.5 text-cyan-100" />
+            <BookOpen className="w-3.5 h-3.5 text-teal-100" />
           </div>
           <div className="flex flex-col text-left leading-tight min-w-0">
             <span className="text-xs font-black tracking-tight truncate">
               Work Diary
             </span>
-            <span className="text-[9px] text-cyan-200 font-semibold truncate">
+            <span className="text-[9px] text-teal-200 font-semibold truncate">
               Notes / Khata
             </span>
           </div>
@@ -106,7 +106,7 @@ export const ActionButtonsRow: React.FC<ActionButtonsRowProps> = ({
         <button
           id="btn-action-salary-slip"
           onClick={onOpenReport || onOpenSettings}
-          className="bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 hover:from-amber-400 hover:to-orange-500 border border-amber-300 text-slate-950 font-black p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden"
+          className="bg-amber-500 hover:bg-amber-600 border border-amber-400 text-slate-950 font-black p-1.5 rounded-xl min-h-[40px] xs:min-h-[42px] flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-all overflow-hidden"
           title="Open Monthly Salary Slip & Print"
         >
           <div className="w-6 h-6 rounded-lg bg-slate-950/15 flex items-center justify-center shrink-0">
