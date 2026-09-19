@@ -50,6 +50,11 @@ jobs:
         run: |
           chmod +x android/gradlew
 
+      - name: Generate Release Keystore
+        run: |
+          cd android/app
+          keytool -genkey -v -keystore attendance-release.jks -keyalg RSA -keysize 2048 -validity 10000 -alias attendancekey -storepass attendance@12345 -keypass attendance@12345 -dname "CN=Attendance User, OU=Pro, O=Dev, L=Delhi, ST=Delhi, C=IN"
+
       - name: Build Android Debug APK
         run: |
           cd android
@@ -84,4 +89,11 @@ jobs:
         with:
           name: Attendance-Pro-Release-AAB
           path: android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+
+      - name: Upload Keystore File (.jks)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Attendance-Release-Keystore
+          path: android/app/attendance-release.jks
           retention-days: 30
